@@ -20,7 +20,20 @@ namespace DigitalCurtain.Hospital
         public float panicBreathingRate = 0.68f;
         public float verticalAmplitude = 0.014f;
         public float pitchAmplitude = 0.95f;
-        public float handlerEnterTime = 11.5f;
+
+        [Header("Narrative Pacing")]
+        [Tooltip("The doctors only start moving after the story beats landed.")]
+        public float sequenceEarliestTime = 24f;
+        [Tooltip("Hard cut: the sequence starts even if unease never reached 1.")]
+        public float sequenceLatestTime = 30f;
+
+        [Header("Paralysis (Struggle)")]
+        [Tooltip("How far the camera jolts when the player tries to move.")]
+        public float struggleShakeAmplitude = 0.022f;
+        [Tooltip("Degrees of rotational shake during a struggle attempt.")]
+        public float struggleRotationShake = 2.6f;
+        [Tooltip("Seconds the jolt lasts before the body falls back into place.")]
+        public float struggleDuration = 0.55f;
 
         [Header("Unease Trigger (Gaze)")]
         [Tooltip("Idle ward figures the player can stare at. Leave empty to auto-collect components named WardEntityIdle.")]
@@ -47,6 +60,7 @@ namespace DigitalCurtain.Hospital
         public Transform playerLeftArm;
         public Transform playerRightArm;
         public ECGMonitorController ecgMonitor;
+        public WardEntityIdle handlerIdle;
 
         [Header("Visor Display & Monologue UI")]
         public Image blackoutImage;
@@ -69,6 +83,7 @@ namespace DigitalCurtain.Hospital
         private bool _clampSoundPlayed;
         private bool _staticSoundPlayed;
 
+        private float _struggleTimer;
         private float _unease;
         private float _gazeDwell;
         private Transform _gazeTarget;
@@ -91,14 +106,14 @@ namespace DigitalCurtain.Hospital
         private System.Random _rng;
         private int _lastDialogueIndex = -1;
 
-        private static readonly (float time, string line)[] MonologueLines = new (float, string)[]
+        private static readonly (float time, string line)[] HeroLines = new (float, string)[]
         {
-            (0.7f,  "Wha... where am I? My head feels like lead..."),
-            (4.6f,  "That beeping... a hospital ward? I don't remember checking in."),
-            (8.8f,  "No doctors, no nurses... why is the air so cold?"),
-            (12.0f, "Wait—who's standing there?! Hey! What is that on your face?!"),
-            (15.1f, "Get back! Don't put that thing on me—no, stop—!"),
-            (18.0f, "I can't see the room... what is this static?! What's happening to me?!")
+            (1.0f,  "My body... I can't feel my body..."),
+            (5.5f,  "Why is it so bright? Where am I? This is a hospital..."),
+            (11.0f, "Who are these people? Why do they have question marks instead of faces?"),
+            (16.0f, "I am trying to move, but... nothing. I am trapped here."),
+            (21.0f, "They are getting closer. What is that thing in his hands? A headset?"),
+            (26.0f, "No, wait! Don't put that on me! Please!")
         };
 
         private void Start()
@@ -191,18 +206,19 @@ namespace DigitalCurtain.Hospital
                 }
             }
 
-            bool spacePressed = false;
-#if ENABLE_INPUT_SYSTEM
-            if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) spacePressed = true;
-#else
-            if (Input.GetKeyDown(KeyCode.Space)) spacePressed = true;
-#endif
+            if (StrugglePressed())
+            {
+                StartStruggle();
+            }
 
             if (!_sequenceTriggered)
             {
                 UpdateUnease(Time.deltaTime);
 
-                if (spacePressed || _unease >= uneaseThreshold)
+                bool uneaseReady = _unease >= uneaseThreshold && _elapsed >= sequenceEarliestTime;
+                bool forcedByClock = _elapsed >= sequenceLatestTime;
+
+                if (uneaseReady || forcedByClock)
                 {
                     TriggerSequence();
                 }
@@ -230,13 +246,28 @@ namespace DigitalCurtain.Hospital
             }
 
             float ampScale = _sequenceTriggered ? 1.35f : 1.0f;
-            transform.localPosition = _initialLocalPos + new Vector3(0f, wave * verticalAmplitude * ampScale, 0f);
-            transform.localRotation = _initialLocalRot * Quaternion.Euler(-wave * pitchAmplitude * ampScale, 0f, 0f);
+            Vector3 struggleOffset = Vector3.zero;
+            Vector3 struggleEuler = Vector3.zero;
+
+            if (_struggleTimer > 0f)
+            {
+                _struggleTimer = Mathf.Max(0f, _struggleTimer - Time.deltaTime);
+                float strength = _struggleTimer / Mathf.Max(0.01f, struggleDuration);
+
+                float shakeX = (Mathf.PerlinNoise(Time.time * 19f, 0.37f) - 0.5f) * 2f;
+                float shakeY = (Mathf.PerlinNoise(0.71f, Time.time * 23f) - 0.5f) * 2f;
+                float shakeRoll = (Mathf.PerlinNoise(Time.time * 17f, 5.13f) - 0.5f) * 2f;
+
+                struggleOffset = new Vector3(shakeY * struggleShakeAmplitude * strength, shakeX * struggleShakeAmplitude * strength, 0f);
+                struggleEuler = new Vector3(shakeX * struggleRotationShake * strength, shakeRoll * struggleRotationShake * strength, shakeRoll * struggleRotationShake * 0.6f * strength);
+            }
+
+            transform.localPosition = _initialLocalPos + new Vector3(0f, wave * verticalAmplitude * ampScale, 0f) + struggleOffset;
+            transform.localRotation = _initialLocalRot * Quaternion.Euler(-wave * pitchAmplitude * ampScale + struggleEuler.x, struggleEuler.y, struggleEuler.z);
 
             UpdatePlayerArms(wave);
 
-            float narrativeClock = _sequenceTriggered ? (handlerEnterTime + _seqTime) : _elapsed;
-            UpdateMonologue(narrativeClock);
+            UpdateMonologue(_elapsed);
 
             if (_sequenceTriggered)
             {
