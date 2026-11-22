@@ -326,7 +326,7 @@ namespace DigitalCurtain.Hospital
 
             if (_gazeTargets.Count > 0) return;
 
-            MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Exclude);
             for (int i = 0; i < behaviours.Length; i++)
             {
                 MonoBehaviour behaviour = behaviours[i];
