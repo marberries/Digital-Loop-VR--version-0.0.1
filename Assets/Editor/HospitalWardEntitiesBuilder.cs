@@ -16,13 +16,13 @@ public static class HospitalWardEntitiesBuilder
     public static void BuildAllThreeQuestionMarkEntities(PatientBreathingAndIntro intro)
     {
         GameObject oldGroup = GameObject.Find("Ward_QuestionMark_Entities");
-        if (oldGroup != null) DestroyImmediate(oldGroup);
+        if (oldGroup != null) Object.DestroyImmediate(oldGroup);
 
         GameObject oldSingle = GameObject.Find("Mysterious_Handler");
-        if (oldSingle != null) DestroyImmediate(oldSingle);
+        if (oldSingle != null) Object.DestroyImmediate(oldSingle);
 
         GameObject oldWardEntities = GameObject.Find("Ward_Entities");
-        if (oldWardEntities != null) DestroyImmediate(oldWardEntities);
+        if (oldWardEntities != null) Object.DestroyImmediate(oldWardEntities);
 
         GameObject group = new GameObject("Ward_QuestionMark_Entities");
 
