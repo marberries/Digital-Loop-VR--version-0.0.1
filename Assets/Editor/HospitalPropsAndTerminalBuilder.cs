@@ -184,6 +184,9 @@ public class HospitalPropsAndTerminalBuilder : EditorWindow
         MeshFilter rootMf = bottle.GetComponent<MeshFilter>();
         if (rootMf != null) DestroyImmediate(rootMf);
 
+        Rigidbody bottleBody = bottle.GetComponent<Rigidbody>();
+        if (bottleBody != null) DestroyImmediate(bottleBody);
+
         bottle.transform.SetParent(null);
         bottle.transform.position = worldPos;
         bottle.transform.rotation = Quaternion.identity;

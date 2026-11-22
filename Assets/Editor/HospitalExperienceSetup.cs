@@ -197,7 +197,21 @@ public static class HospitalExperienceSetup
         if (bottle == null) return;
 
         Rigidbody body = bottle.GetComponent<Rigidbody>();
-        if (body != null) Object.DestroyImmediate(body);
+        if (body != null)
+        {
+            // The pill bottle used to fly off the nightstand: strip its physics entirely
+            // and, if the component refuses to go, park it kinematic so it can never move.
+            Object.DestroyImmediate(body);
+
+            Rigidbody leftover = bottle.GetComponent<Rigidbody>();
+            if (leftover != null)
+            {
+                leftover.isKinematic = true;
+                leftover.useGravity = false;
+                leftover.constraints = RigidbodyConstraints.FreezeAll;
+                EditorUtility.SetDirty(leftover);
+            }
+        }
 
         bottle.name = "Pill_Bottle";
         bottle.transform.position = new Vector3(-0.54f, 0.655f, -4.15f);
