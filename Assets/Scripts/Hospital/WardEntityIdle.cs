@@ -41,7 +41,7 @@ namespace DigitalCurtain.Hospital
         {
             _baseLocalPosition = transform.localPosition;
             _baseRotation = transform.localRotation;
-            _phase = (GetInstanceID() & 0x3FF) * 0.0173f;
+            _phase = Random.value * Mathf.PI * 2f;
 
             if (headBone != null) _headBaseRotation = headBone.localRotation;
             if (torsoBone != null) _torsoBaseScale = torsoBone.localScale;
