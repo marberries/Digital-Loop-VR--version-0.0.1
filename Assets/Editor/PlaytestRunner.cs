@@ -63,6 +63,8 @@ public static class PlaytestRunner
 
         float t = (float)EditorApplication.timeSinceStartup - _startTime;
 
+        if (t < 0.6f && _rigNode != null) _rigNode.rotation = Quaternion.Euler(15f, 0f, 0f);
+        if (t > 0.3f) ScreenshotOnce(t, 0.3f, "play_00_default_view");
         AimAtTarget(t);
         if (t > 2.0f) ScreenshotOnce(t, 2.0f, "play_01_wake");
         if (t > 6.0f) ScreenshotOnce(t, 6.0f, "play_02_room");

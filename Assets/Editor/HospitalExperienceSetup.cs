@@ -89,9 +89,11 @@ public static class HospitalExperienceSetup
         if (look == null) look = cameraOffset.gameObject.AddComponent<PatientLookController>();
 
         look.sensitivity = 2.2f;
-        look.basePitch = 0f;
-        look.minPitch = -55f;
-        look.maxPitch = 42f;
+        // The rig is tilted 75 degrees (lying on the bed). The head sits 60 degrees back
+        // against that tilt, so the default eye line rests ~15 degrees down towards the feet.
+        look.basePitch = -60f;
+        look.minPitch = -35f;
+        look.maxPitch = 35f;
         look.lockCursor = true;
         look.intro = intro;
         look.enabled = true;
@@ -269,6 +271,9 @@ public static class HospitalExperienceSetup
         SetBaseColor("Assets/Materials/Handler_Coat_Mat.mat", new Color(0.15f, 0.16f, 0.19f));
         SetBaseColor("Assets/Materials/Handler_Glove_Mat.mat", new Color(0.19f, 0.20f, 0.23f));
         SetBaseColor("Assets/Materials/Handler_Mask_Mat.mat", new Color(0.07f, 0.07f, 0.09f));
+        SetBaseColor("Assets/Materials/Doctor_Coat_Mat.mat", new Color(0.28f, 0.30f, 0.33f));
+        SetBaseColor("Assets/Materials/Doctor_Trim_Mat.mat", new Color(0.16f, 0.17f, 0.20f));
+        SetBaseColor("Assets/Materials/Doctor_Glove_Mat.mat", new Color(0.34f, 0.36f, 0.40f));
     }
 
     private static void SetBaseColor(string path, Color color)

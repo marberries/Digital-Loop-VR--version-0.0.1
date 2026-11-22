@@ -46,7 +46,7 @@ namespace DigitalCurtain.Hospital
             Vector2 delta = ReadLookDelta();
             _yaw += delta.x * sensitivity;
             _pitch = Mathf.Clamp(_pitch - delta.y * sensitivity, minPitch, maxPitch);
-            transform.localRotation = Quaternion.Euler(basePitch, 0f, 0f) * Quaternion.Euler(_pitch, _yaw, 0f);
+            transform.localRotation = Quaternion.Euler(basePitch + _pitch, _yaw, 0f);
         }
 
         private void HandleCursorLock()
