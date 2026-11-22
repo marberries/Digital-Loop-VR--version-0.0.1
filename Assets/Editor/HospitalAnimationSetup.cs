@@ -13,7 +13,6 @@ public class HospitalAnimationSetup : EditorWindow
     {
         int attachedCount = 0;
 
-        // 1. Setup ECG Monitor Animation & Sweep Cursor
         GameObject terminal = GameObject.Find("Med_Terminal");
         if (terminal != null)
         {
@@ -52,7 +51,6 @@ public class HospitalAnimationSetup : EditorWindow
             attachedCount++;
         }
 
-        // 2. Setup Flickering Ceiling Light (Fixture #3)
         GameObject fixture = GameObject.Find("Ceiling_Light_Fixture_3");
         if (fixture != null)
         {
@@ -73,7 +71,6 @@ public class HospitalAnimationSetup : EditorWindow
             attachedCount++;
         }
 
-        // 3. Setup Camera, '?' Handler Character, 26-Part Neural Headset, Player Arms, Monologue UI & Post-Processing
         GameObject cameraOffset = GameObject.Find("Camera Offset");
         if (cameraOffset != null)
         {
@@ -113,7 +110,7 @@ public class HospitalAnimationSetup : EditorWindow
         }
 
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
-        Debug.Log($"[HospitalAnimationSetup] Configured {attachedCount}/3 systems: '?' Handler, 26-Part Neural Headset, Player Arms, Monologue UI & URP Post-Processing.");
+        Debug.Log($"[HospitalAnimationSetup] Configured {attachedCount}/3 systems: '?' Handler, Neural Headset, Player Arms, Monologue UI & URP Post-Processing.");
     }
 
     private static void BuildDetailedNeuralHeadset(PatientBreathingAndIntro intro)
@@ -121,42 +118,32 @@ public class HospitalAnimationSetup : EditorWindow
         GameObject existing = GameObject.Find("Neural_Headset_Assembly");
         if (existing != null) DestroyImmediate(existing);
 
-        Material shellMat = HospitalMaterials.CreateMaterial("Headset_Shell_Mat", new Color(0.11f, 0.12f, 0.14f), 0.78f, 0.55f);
-        Material trimSilverMat = HospitalMaterials.CreateMaterial("Headset_Silver_Mat", new Color(0.75f, 0.78f, 0.82f), 0.92f, 0.94f);
+        Material shellMat = HospitalMaterials.CreateMaterial("Headset_Shell_Mat", new Color(0.11f, 0.12f, 0.14f), 0.75f, 0.50f);
+        Material trimSilverMat = HospitalMaterials.CreateMaterial("Headset_Silver_Mat", new Color(0.74f, 0.77f, 0.81f), 0.90f, 0.92f);
         Material foamMat = HospitalMaterials.CreateMaterial("Headset_Foam_Mat", new Color(0.05f, 0.05f, 0.06f), 0.12f, 0.0f);
-        Material frontGlassMat = HospitalMaterials.CreateMaterial("Headset_FrontGlass_Mat", new Color(0.02f, 0.03f, 0.05f), 0.98f, 0.88f);
-        Material cyanOpticMat = HospitalMaterials.CreateEmissiveMaterial("Headset_CyanOptic_Mat", new Color(0.1f, 0.95f, 1.0f), new Color(0.1f, 0.95f, 1.0f), 3.8f);
+        Material frontGlassMat = HospitalMaterials.CreateMaterial("Headset_FrontGlass_Mat", new Color(0.03f, 0.04f, 0.06f), 0.96f, 0.85f);
+        Material cyanOpticMat = HospitalMaterials.CreateEmissiveMaterial("Headset_CyanOptic_Mat", new Color(0.1f, 0.95f, 1.0f), new Color(0.1f, 0.95f, 1.0f), 3.6f);
         Material strapMat = HospitalMaterials.CreateMaterial("Headset_Strap_Mat", new Color(0.18f, 0.19f, 0.21f), 0.22f, 0.0f);
-        Material cableMat = HospitalMaterials.CreateMaterial("Headset_Cable_Mat", new Color(0.08f, 0.09f, 0.10f), 0.45f, 0.2f);
 
         GameObject headset = new GameObject("Neural_Headset_Assembly");
         intro.headsetAssembly = headset.transform;
 
-        // Main contoured shell + brow shield + cheek guards
-        BuildPart(headset.transform, "Visor_Front_Body", PrimitiveType.Cube, new Vector3(0f, 0.002f, 0.025f), Vector3.zero, new Vector3(0.215f, 0.10f, 0.060f), shellMat);
-        BuildPart(headset.transform, "Visor_Brow_Shield", PrimitiveType.Cube, new Vector3(0f, 0.058f, 0.01f), new Vector3(8f, 0f, 0f), new Vector3(0.23f, 0.028f, 0.092f), shellMat);
+        BuildPart(headset.transform, "Visor_Front_Body", PrimitiveType.Cube, new Vector3(0f, 0.002f, 0.025f), Vector3.zero, new Vector3(0.21f, 0.098f, 0.058f), shellMat);
+        BuildPart(headset.transform, "Visor_Brow_Shield", PrimitiveType.Cube, new Vector3(0f, 0.058f, 0.01f), new Vector3(8f, 0f, 0f), new Vector3(0.225f, 0.028f, 0.09f), shellMat);
         BuildPart(headset.transform, "Visor_Cheek_L", PrimitiveType.Cube, new Vector3(-0.066f, -0.046f, 0.015f), new Vector3(0f, 0f, -10f), new Vector3(0.078f, 0.025f, 0.078f), shellMat);
         BuildPart(headset.transform, "Visor_Cheek_R", PrimitiveType.Cube, new Vector3( 0.066f, -0.046f, 0.015f), new Vector3(0f, 0f,  10f), new Vector3(0.078f, 0.025f, 0.078f), shellMat);
 
-        // Front reflective glass shield, glowing cyan neural bar & dual corner tracking cameras
-        BuildPart(headset.transform, "Front_Glass_Plate", PrimitiveType.Cube, new Vector3(0f, 0.004f, 0.057f), Vector3.zero, new Vector3(0.198f, 0.084f, 0.006f), frontGlassMat);
-        BuildPart(headset.transform, "Front_Neural_Optic_Strip", PrimitiveType.Cube, new Vector3(0f, 0.025f, 0.061f), Vector3.zero, new Vector3(0.16f, 0.007f, 0.004f), cyanOpticMat);
-        BuildPart(headset.transform, "Tracking_Cam_Housing_L", PrimitiveType.Cylinder, new Vector3(-0.085f, 0.034f, 0.058f), new Vector3(90f, 0f, 0f), new Vector3(0.024f, 0.008f, 0.024f), trimSilverMat);
-        BuildPart(headset.transform, "Tracking_Cam_Lens_L", PrimitiveType.Cylinder, new Vector3(-0.085f, 0.034f, 0.063f), new Vector3(90f, 0f, 0f), new Vector3(0.013f, 0.004f, 0.013f), frontGlassMat);
-        BuildPart(headset.transform, "Tracking_Cam_Housing_R", PrimitiveType.Cylinder, new Vector3( 0.085f, 0.034f, 0.058f), new Vector3(90f, 0f, 0f), new Vector3(0.024f, 0.008f, 0.024f), trimSilverMat);
-        BuildPart(headset.transform, "Tracking_Cam_Lens_R", PrimitiveType.Cylinder, new Vector3( 0.085f, 0.034f, 0.063f), new Vector3(90f, 0f, 0f), new Vector3(0.013f, 0.004f, 0.013f), frontGlassMat);
+        BuildPart(headset.transform, "Front_Glass_Plate", PrimitiveType.Cube, new Vector3(0f, 0.004f, 0.056f), Vector3.zero, new Vector3(0.195f, 0.084f, 0.006f), frontGlassMat);
+        BuildPart(headset.transform, "Front_Neural_Optic_Strip", PrimitiveType.Cube, new Vector3(0f, 0.025f, 0.060f), Vector3.zero, new Vector3(0.16f, 0.007f, 0.004f), cyanOpticMat);
+        BuildPart(headset.transform, "Tracking_Cam_L", PrimitiveType.Cylinder, new Vector3(-0.085f, 0.034f, 0.058f), new Vector3(90f, 0f, 0f), new Vector3(0.022f, 0.008f, 0.022f), trimSilverMat);
+        BuildPart(headset.transform, "Tracking_Cam_R", PrimitiveType.Cylinder, new Vector3( 0.085f, 0.034f, 0.058f), new Vector3(90f, 0f, 0f), new Vector3(0.022f, 0.008f, 0.022f), trimSilverMat);
 
-        // Facial foam cushion, rotary tension dials, temple arms, status LEDs, top strap & braided neural cables
-        BuildPart(headset.transform, "Facial_Foam_Ring", PrimitiveType.Cube, new Vector3(0f, 0.002f, -0.018f), Vector3.zero, new Vector3(0.192f, 0.092f, 0.036f), foamMat);
-        BuildPart(headset.transform, "Side_Dial_L", PrimitiveType.Cylinder, new Vector3(-0.114f, 0.008f, 0.015f), new Vector3(0f, 0f, 90f), new Vector3(0.034f, 0.010f, 0.034f), trimSilverMat);
-        BuildPart(headset.transform, "Side_Dial_R", PrimitiveType.Cylinder, new Vector3( 0.114f, 0.008f, 0.015f), new Vector3(0f, 0f, 90f), new Vector3(0.034f, 0.010f, 0.034f), trimSilverMat);
-        BuildPart(headset.transform, "Temple_Arm_L", PrimitiveType.Cube, new Vector3(-0.112f, 0.008f, -0.065f), Vector3.zero, new Vector3(0.015f, 0.030f, 0.15f), shellMat);
-        BuildPart(headset.transform, "Temple_Arm_R", PrimitiveType.Cube, new Vector3( 0.112f, 0.008f, -0.065f), Vector3.zero, new Vector3(0.015f, 0.030f, 0.15f), shellMat);
-        BuildPart(headset.transform, "Side_Status_LED_L", PrimitiveType.Sphere, new Vector3(-0.125f, 0.008f, 0.015f), Vector3.zero, new Vector3(0.011f, 0.011f, 0.011f), cyanOpticMat);
-        BuildPart(headset.transform, "Side_Status_LED_R", PrimitiveType.Sphere, new Vector3( 0.125f, 0.008f, 0.015f), Vector3.zero, new Vector3(0.011f, 0.011f, 0.011f), cyanOpticMat);
+        BuildPart(headset.transform, "Facial_Foam_Ring", PrimitiveType.Cube, new Vector3(0f, 0.002f, -0.018f), Vector3.zero, new Vector3(0.19f, 0.09f, 0.035f), foamMat);
+        BuildPart(headset.transform, "Temple_Arm_L", PrimitiveType.Cube, new Vector3(-0.110f, 0.008f, -0.065f), Vector3.zero, new Vector3(0.015f, 0.030f, 0.15f), shellMat);
+        BuildPart(headset.transform, "Temple_Arm_R", PrimitiveType.Cube, new Vector3( 0.110f, 0.008f, -0.065f), Vector3.zero, new Vector3(0.015f, 0.030f, 0.15f), shellMat);
+        BuildPart(headset.transform, "Side_Status_LED_L", PrimitiveType.Sphere, new Vector3(-0.118f, 0.008f, 0.015f), Vector3.zero, new Vector3(0.011f, 0.011f, 0.011f), cyanOpticMat);
+        BuildPart(headset.transform, "Side_Status_LED_R", PrimitiveType.Sphere, new Vector3( 0.118f, 0.008f, 0.015f), Vector3.zero, new Vector3(0.011f, 0.011f, 0.011f), cyanOpticMat);
         BuildPart(headset.transform, "Top_Head_Strap", PrimitiveType.Cube, new Vector3(0f, 0.072f, -0.055f), new Vector3(-12f, 0f, 0f), new Vector3(0.040f, 0.010f, 0.15f), strapMat);
-        BuildPart(headset.transform, "Neural_Cable_L", PrimitiveType.Cylinder, new Vector3(-0.095f, -0.075f, -0.02f), new Vector3(12f, 0f, 8f), new Vector3(0.009f, 0.065f, 0.009f), cableMat);
-        BuildPart(headset.transform, "Neural_Cable_R", PrimitiveType.Cylinder, new Vector3( 0.095f, -0.075f, -0.02f), new Vector3(12f, 0f, -8f), new Vector3(0.009f, 0.065f, 0.009f), cableMat);
     }
 
     private static void BuildMysteriousQuestionMarkHandler(PatientBreathingAndIntro intro)
@@ -164,41 +151,32 @@ public class HospitalAnimationSetup : EditorWindow
         GameObject existing = GameObject.Find("Mysterious_Handler");
         if (existing != null) DestroyImmediate(existing);
 
-        Material coatMat = HospitalMaterials.CreateMaterial("Handler_Coat_Mat", new Color(0.07f, 0.08f, 0.10f), 0.25f, 0.05f);
-        Material trimDarkMat = HospitalMaterials.CreateMaterial("Handler_Trim_Mat", new Color(0.04f, 0.04f, 0.05f), 0.35f, 0.1f);
+        Material coatMat = HospitalMaterials.CreateMaterial("Handler_Coat_Mat", new Color(0.08f, 0.09f, 0.11f), 0.25f, 0.05f);
         Material gloveMat = HospitalMaterials.CreateMaterial("Handler_Glove_Mat", new Color(0.14f, 0.15f, 0.17f), 0.45f, 0.1f);
-        Material maskMat = HospitalMaterials.CreateMaterial("Handler_Mask_Mat", new Color(0.02f, 0.02f, 0.03f), 0.90f, 0.65f);
+        Material maskMat = HospitalMaterials.CreateMaterial("Handler_Mask_Mat", new Color(0.03f, 0.03f, 0.04f), 0.85f, 0.6f);
         Material qMarkGlowMat = HospitalMaterials.CreateEmissiveMaterial(
             "Handler_QuestionMark_Mat",
-            new Color(0.95f, 0.98f, 1.0f),
-            new Color(0.82f, 0.95f, 1.0f),
-            4.2f
+            new Color(0.95f, 0.96f, 1.0f),
+            new Color(0.85f, 0.95f, 1.0f),
+            3.8f
         );
 
         GameObject root = new GameObject("Mysterious_Handler");
-        root.transform.position = new Vector3(-2.34f, 0f, -3.62f);
-        root.transform.rotation = Quaternion.Euler(0f, 124f, 0f);
+        root.transform.position = new Vector3(-2.32f, 0f, -3.72f);
+        root.transform.rotation = Quaternion.Euler(0f, 122f, 0f);
         intro.handlerRoot = root.transform;
 
-        // Tailored trench coat skirt, legs & boots
-        BuildPart(root.transform, "Handler_Leg_L", PrimitiveType.Capsule, new Vector3(-0.10f, 0.45f, 0f), Vector3.zero, new Vector3(0.14f, 0.45f, 0.14f), trimDarkMat);
-        BuildPart(root.transform, "Handler_Leg_R", PrimitiveType.Capsule, new Vector3( 0.10f, 0.45f, 0f), Vector3.zero, new Vector3(0.14f, 0.45f, 0.14f), trimDarkMat);
-        BuildPart(root.transform, "Handler_LowerCoat", PrimitiveType.Cylinder, new Vector3(0f, 0.62f, 0f), Vector3.zero, new Vector3(0.39f, 0.45f, 0.32f), coatMat);
+        BuildPart(root.transform, "Handler_LowerCoat", PrimitiveType.Cylinder, new Vector3(0f, 0.55f, 0f), Vector3.zero, new Vector3(0.38f, 0.55f, 0.32f), coatMat);
 
-        // Articulated Torso Pivot
         GameObject torso = new GameObject("Handler_Torso");
         torso.transform.SetParent(root.transform);
         torso.transform.localPosition = new Vector3(0f, 1.05f, 0f);
         torso.transform.localRotation = Quaternion.Euler(14f, 0f, 0f);
         intro.handlerTorso = torso.transform;
 
-        BuildPart(torso.transform, "Torso_Chest", PrimitiveType.Capsule, new Vector3(0f, 0.28f, 0f), Vector3.zero, new Vector3(0.43f, 0.34f, 0.26f), coatMat);
-        BuildPart(torso.transform, "Torso_Belt", PrimitiveType.Cylinder, new Vector3(0f, 0.04f, 0f), Vector3.zero, new Vector3(0.41f, 0.035f, 0.27f), trimDarkMat);
-        BuildPart(torso.transform, "Torso_Lapel_L", PrimitiveType.Cube, new Vector3(-0.07f, 0.44f, 0.12f), new Vector3(12f, 0f, 18f), new Vector3(0.06f, 0.24f, 0.02f), trimDarkMat);
-        BuildPart(torso.transform, "Torso_Lapel_R", PrimitiveType.Cube, new Vector3( 0.07f, 0.44f, 0.12f), new Vector3(12f, 0f, -18f), new Vector3(0.06f, 0.24f, 0.02f), trimDarkMat);
+        BuildPart(torso.transform, "Torso_Chest", PrimitiveType.Capsule, new Vector3(0f, 0.28f, 0f), Vector3.zero, new Vector3(0.42f, 0.34f, 0.26f), coatMat);
         BuildPart(torso.transform, "Torso_Collar", PrimitiveType.Cylinder, new Vector3(0f, 0.56f, 0f), Vector3.zero, new Vector3(0.22f, 0.06f, 0.22f), coatMat);
 
-        // Faceless Obsidian Head with Sculpted Glowing '?' Emblem & Eerie Rim Glow
         GameObject head = new GameObject("Handler_Head");
         head.transform.SetParent(torso.transform);
         head.transform.localPosition = new Vector3(0f, 0.74f, 0.02f);
@@ -213,18 +191,6 @@ public class HospitalAnimationSetup : EditorWindow
         BuildPart(head.transform, "QMark_Stem_Vert",   PrimitiveType.Cube,   new Vector3( 0.000f, -0.014f, 0.124f), Vector3.zero, new Vector3(0.020f, 0.034f, 0.016f), qMarkGlowMat);
         BuildPart(head.transform, "QMark_Bottom_Dot",  PrimitiveType.Sphere, new Vector3( 0.000f, -0.054f, 0.123f), Vector3.zero, new Vector3(0.024f, 0.024f, 0.018f), qMarkGlowMat);
 
-        // Subtle pale-cyan point light on '?' emblem so it illuminates the coat lapels and held headset
-        GameObject qLightObj = new GameObject("QMark_Face_Aura");
-        qLightObj.transform.SetParent(head.transform);
-        qLightObj.transform.localPosition = new Vector3(0f, 0f, 0.22f);
-        Light qLight = qLightObj.AddComponent<Light>();
-        qLight.type = LightType.Point;
-        qLight.color = new Color(0.80f, 0.94f, 1.0f);
-        qLight.intensity = 0.85f;
-        qLight.range = 1.6f;
-        qLight.shadows = LightShadows.None;
-
-        // Articulated Left & Right Arms holding the Neural Headset
         GameObject armL = new GameObject("Handler_Arm_L");
         armL.transform.SetParent(torso.transform);
         armL.transform.localPosition = new Vector3(-0.23f, 0.48f, 0.02f);
@@ -255,8 +221,8 @@ public class HospitalAnimationSetup : EditorWindow
         armsRoot.transform.localPosition = Vector3.zero;
         armsRoot.transform.localRotation = Quaternion.identity;
 
-        intro.playerLeftArm = BuildSinglePlayerArm(armsRoot.transform, "Player_Left_Arm", new Vector3(-0.25f, -0.33f, 0.35f), new Vector3(13f, 18f, -8f), true, gownMat, skinMat, bandMat);
-        intro.playerRightArm = BuildSinglePlayerArm(armsRoot.transform, "Player_Right_Arm", new Vector3(0.25f, -0.33f, 0.35f), new Vector3(13f, -18f, 8f), false, gownMat, skinMat, bandMat);
+        intro.playerLeftArm = BuildSinglePlayerArm(armsRoot.transform, "Player_Left_Arm", new Vector3(-0.26f, -0.34f, 0.34f), new Vector3(14f, 18f, -8f), true, gownMat, skinMat, bandMat);
+        intro.playerRightArm = BuildSinglePlayerArm(armsRoot.transform, "Player_Right_Arm", new Vector3(0.26f, -0.34f, 0.34f), new Vector3(14f, -18f, 8f), false, gownMat, skinMat, bandMat);
     }
 
     private static Transform BuildSinglePlayerArm(Transform parent, string name, Vector3 pos, Vector3 euler, bool isLeft, Material gownMat, Material skinMat, Material bandMat)
@@ -303,7 +269,6 @@ public class HospitalAnimationSetup : EditorWindow
         scaler.referenceResolution = new Vector2(1920f, 1080f);
         canvasObj.AddComponent<GraphicRaycaster>();
 
-        // 1. Fullscreen Blackout Layer
         GameObject blackoutObj = new GameObject("Blackout_Screen");
         blackoutObj.transform.SetParent(canvasObj.transform, false);
         Image blackoutImg = blackoutObj.AddComponent<Image>();
@@ -311,7 +276,6 @@ public class HospitalAnimationSetup : EditorWindow
         StretchFullScreen(blackoutImg.rectTransform);
         intro.blackoutImage = blackoutImg;
 
-        // 2. Internal Headset Static Snow & Glitch Display
         GameObject staticObj = new GameObject("Headset_Static_Glitch_Screen");
         staticObj.transform.SetParent(canvasObj.transform, false);
         RawImage staticImg = staticObj.AddComponent<RawImage>();
@@ -319,34 +283,32 @@ public class HospitalAnimationSetup : EditorWindow
         StretchFullScreen(staticImg.rectTransform);
         intro.staticGlitchImage = staticImg;
 
-        // 3. Dark Translucent Backing Pill for Monologue Subtitles
-        GameObject panelObj = new GameObject("Monologue_Backdrop");
+        GameObject panelObj = new GameObject("Monologue_Subtitle_Panel");
         panelObj.transform.SetParent(canvasObj.transform, false);
         Image panelImg = panelObj.AddComponent<Image>();
-        panelImg.color = new Color(0.02f, 0.03f, 0.05f, 0.68f);
+        panelImg.color = new Color(0.03f, 0.04f, 0.06f, 0.65f);
         RectTransform panelRt = panelImg.rectTransform;
-        panelRt.anchorMin = new Vector2(0.18f, 0.045f);
-        panelRt.anchorMax = new Vector2(0.82f, 0.125f);
+        panelRt.anchorMin = new Vector2(0.14f, 0.06f);
+        panelRt.anchorMax = new Vector2(0.86f, 0.16f);
         panelRt.offsetMin = Vector2.zero;
         panelRt.offsetMax = Vector2.zero;
         panelObj.SetActive(false);
         intro.monologuePanel = panelObj;
 
-        // 4. Narrative Internal Monologue Subtitles
         GameObject textObj = new GameObject("Patient_Monologue_Text");
         textObj.transform.SetParent(panelObj.transform, false);
         Text txt = textObj.AddComponent<Text>();
         Font builtInFont = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
-        if (builtInFont == null) builtInFont = Font.CreateDynamicFontFromOSFont("Helvetica Neue", 30);
+        if (builtInFont == null) builtInFont = Font.CreateDynamicFontFromOSFont("Helvetica Neue", 32);
         txt.font = builtInFont;
-        txt.fontSize = 30;
+        txt.fontSize = 32;
         txt.fontStyle = FontStyle.Italic;
         txt.alignment = TextAnchor.MiddleCenter;
-        txt.color = new Color(0.94f, 0.97f, 1.0f, 0.98f);
+        txt.color = new Color(0.93f, 0.96f, 0.98f, 0.96f);
         txt.text = "";
 
         Shadow shadow = textObj.AddComponent<Shadow>();
-        shadow.effectColor = new Color(0f, 0f, 0f, 0.95f);
+        shadow.effectColor = new Color(0f, 0f, 0f, 0.92f);
         shadow.effectDistance = new Vector2(2f, -2f);
 
         StretchFullScreen(txt.rectTransform);
@@ -381,7 +343,10 @@ public class HospitalAnimationSetup : EditorWindow
 
         ChromaticAberration chrom = profile.Add<ChromaticAberration>(true);
         chrom.intensity.Override(0.06f);
-        intro.postChromaticAberration = chrom;
+        if (intro != null)
+        {
+            intro.postChromaticAberration = chrom;
+        }
     }
 
     private static void StretchFullScreen(RectTransform rt)
