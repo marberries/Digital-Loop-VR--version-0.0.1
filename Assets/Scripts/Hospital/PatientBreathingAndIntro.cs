@@ -75,6 +75,8 @@ namespace DigitalCurtain.Hospital
         private readonly List<Transform> _gazeTargets = new List<Transform>();
 
         public float Unease => _unease;
+        public bool SequenceRunning => _sequenceTriggered;
+        public float SequenceTime => _seqTime;
 
         private AudioSource _breathAudio;
         private AudioSource _sfxAudio;
