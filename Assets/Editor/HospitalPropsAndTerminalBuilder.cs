@@ -28,9 +28,8 @@ public class HospitalPropsAndTerminalBuilder : EditorWindow
         BuildDetailedNightstand(new Vector3(-0.54f, 0f, -4.15f), woodMat, chromeMat);
         SetupPillBottle(new Vector3(-0.54f, 0.655f, -4.15f), amberBottleMat, whiteCapMat);
         BuildDetailedMedicalCabinet(new Vector3(-4.52f, 0f, -1.85f), cabinetSteelMat, chromeMat);
-        BuildMedicalTerminal(new Vector3(-1.12f, 0f, -2.05f), darkPlasticMat, chromeMat, rubberMat, ecgScreenMat, powerLedMat);
+        BuildMedicalTerminal(new Vector3(-1.08f, 0f, -2.05f), darkPlasticMat, chromeMat, rubberMat, ecgScreenMat, powerLedMat);
 
-        // First-person visible wardrobe, paintings, certificates, wall clock & visitor chair
         BuildPatientWardrobe(new Vector3(-2.35f, 0f, 4.52f), woodMat, darkFrameWoodMat, chromeMat);
         BuildFramedPainting("Hospital_Painting_Front", new Vector3(-0.35f, 1.88f, 4.86f), new Vector3(0f, 180f, 0f), new Vector2(1.15f, 0.86f), darkFrameWoodMat, painting1Mat);
         BuildFramedPainting("Hospital_Painting_Right", new Vector3(4.86f, 1.88f, -1.65f), new Vector3(0f, -90f, 0f), new Vector2(1.10f, 0.82f), darkFrameWoodMat, painting2Mat);
@@ -45,7 +44,7 @@ public class HospitalPropsAndTerminalBuilder : EditorWindow
         SetupPatientCamera();
 
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
-        Debug.Log("[HospitalPropsAndTerminalBuilder] Furniture, wardrobe, paintings, certificates, clock, and camera configured.");
+        Debug.Log("[HospitalPropsAndTerminalBuilder] Complete furniture, artwork, certificates, clock, and cinematic camera configured.");
     }
 
     [MenuItem("Tools/Hospital Ward/Build All (Complete Ward)")]
@@ -266,8 +265,9 @@ public class HospitalPropsAndTerminalBuilder : EditorWindow
 
         if (xrOrigin != null)
         {
-            xrOrigin.transform.position = new Vector3(-1.50f, 0.92f, -4.52f);
-            xrOrigin.transform.rotation = Quaternion.Euler(10f, 4f, 0f);
+            // Shifted left and slightly higher for a wider diagonal view of the bed, hands, terminal, and '?' handler
+            xrOrigin.transform.position = new Vector3(-1.82f, 1.12f, -4.32f);
+            xrOrigin.transform.rotation = Quaternion.Euler(13f, 11f, 0f);
         }
         if (cameraOffset != null)
         {
