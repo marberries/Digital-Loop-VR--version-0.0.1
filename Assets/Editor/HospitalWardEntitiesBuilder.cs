@@ -35,10 +35,10 @@ public static class HospitalWardEntitiesBuilder
 
         string[] names =
         {
+            "Ward_Entity_Bedside_Left",
             "Ward_Entity_Footboard",
-            "Ward_Entity_Bedside",
-            "Ward_Entity_Window",
-            "Ward_Entity_Wardrobe"
+            "Ward_Entity_Right_Wall",
+            "Ward_Entity_Back_Wall"
         };
 
         Transform[] figures = new Transform[slots.Length];
