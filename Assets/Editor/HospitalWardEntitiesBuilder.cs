@@ -93,7 +93,7 @@ public static class HospitalWardEntitiesBuilder
         // Head: a large glowing question mark that always turns to the player.
         GameObject head = new GameObject("Head_QuestionMark");
         head.transform.SetParent(torso.transform);
-        head.transform.localPosition = new Vector3(0f, 0.70f, 0f);
+        head.transform.localPosition = new Vector3(0f, 0.78f, 0f);
         head.AddComponent<LookAtPlayer>();
 
         BuildQuestionMark(head.transform, qMarkMat);
@@ -142,8 +142,8 @@ public static class HospitalWardEntitiesBuilder
             BuildPart(parent, $"Q_Hook_{i:00}", PrimitiveType.Sphere, point, Vector3.zero, Vector3.one * 0.085f, glowMaterial);
         }
 
-        BuildPart(parent, "Q_Stem", PrimitiveType.Capsule, new Vector3(0.10f, -0.02f, 0f), new Vector3(0f, 0f, 30f), new Vector3(0.08f, 0.09f, 0.08f), glowMaterial);
-        BuildPart(parent, "Q_Dot", PrimitiveType.Sphere, new Vector3(0.02f, -0.21f, 0f), Vector3.zero, Vector3.one * 0.1f, glowMaterial);
+        BuildPart(parent, "Q_Stem", PrimitiveType.Capsule, new Vector3(0.14f, -0.01f, 0f), new Vector3(0f, 0f, 20f), new Vector3(0.08f, 0.09f, 0.08f), glowMaterial);
+        BuildPart(parent, "Q_Dot", PrimitiveType.Sphere, new Vector3(0.05f, -0.20f, 0f), Vector3.zero, Vector3.one * 0.1f, glowMaterial);
     }
 
     private static GameObject BuildPart(Transform parent, string name, PrimitiveType type, Vector3 localPos, Vector3 localEuler, Vector3 localScale, Material material)
