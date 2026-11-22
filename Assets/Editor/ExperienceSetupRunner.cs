@@ -2,6 +2,7 @@ using System.IO;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
+using Object = UnityEngine.Object;
 
 [InitializeOnLoad]
 public static class ExperienceSetupRunner
@@ -23,7 +24,22 @@ public static class ExperienceSetupRunner
         try
         {
             HospitalExperienceSetup.BuildPlayableExperience();
-            result = "OK scene=" + EditorSceneManager.GetActiveScene().path;
+
+            GameObject bottle = GameObject.Find("Pill_Bottle");
+            string diag = bottle == null
+                ? "bottle=null"
+                : $"bottle active={bottle.activeSelf} rb={(bottle.GetComponent<Rigidbody>() != null ? "YES" : "no")} childrenRigid={bottle.GetComponentsInChildren<Rigidbody>(true).Length}";
+
+            if (bottle != null)
+            {
+                Rigidbody leftover = bottle.GetComponent<Rigidbody>();
+                if (leftover != null) Object.DestroyImmediate(leftover);
+                foreach (Rigidbody rb in bottle.GetComponentsInChildren<Rigidbody>(true)) Object.DestroyImmediate(rb);
+                EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+                EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
+            }
+
+            result = "OK scene=" + EditorSceneManager.GetActiveScene().path + " | " + diag;
         }
         catch (System.Exception exception)
         {
