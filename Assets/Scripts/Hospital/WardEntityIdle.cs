@@ -28,6 +28,11 @@ namespace DigitalCurtain.Hospital
         public Transform headBone;
         public Transform torsoBone;
 
+        [Header("Builder Wiring")]
+        public Transform torsoTransform;
+        public Transform headTransform;
+        public float phaseOffset;
+
         private Vector3 _baseLocalPosition;
         private Quaternion _baseRotation;
         private Vector3 _torsoBaseScale;
@@ -39,9 +44,12 @@ namespace DigitalCurtain.Hospital
 
         private void Awake()
         {
+            if (headBone == null) headBone = headTransform;
+            if (torsoBone == null) torsoBone = torsoTransform;
+
             _baseLocalPosition = transform.localPosition;
             _baseRotation = transform.localRotation;
-            _phase = Random.value * Mathf.PI * 2f;
+            _phase = phaseOffset + Random.value * Mathf.PI * 2f;
 
             if (headBone != null) _headBaseRotation = headBone.localRotation;
             if (torsoBone != null) _torsoBaseScale = torsoBone.localScale;
