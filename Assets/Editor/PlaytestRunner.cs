@@ -98,6 +98,11 @@ public static class PlaytestRunner
     private static void ResolveReferences()
     {
         _intro = Object.FindAnyObjectByType<PatientBreathingAndIntro>();
+        if (_intro != null)
+        {
+            _intro.sequenceEarliestTime = 7f;
+            _intro.sequenceLatestTime = 9f;
+        }
         GameObject offset = GameObject.Find("Camera Offset");
         if (offset != null)
         {
