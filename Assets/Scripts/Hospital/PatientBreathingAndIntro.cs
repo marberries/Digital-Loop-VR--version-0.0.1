@@ -82,6 +82,9 @@ namespace DigitalCurtain.Hospital
         private float _seqTime;
         private bool _clampSoundPlayed;
         private bool _staticSoundPlayed;
+        private bool _headsetStartCaptured;
+        private Vector3 _headsetStartPosition;
+        private Quaternion _headsetStartRotation;
 
         private float _struggleTimer;
         private float _unease;
@@ -407,134 +410,152 @@ namespace DigitalCurtain.Hospital
 
         private void RunHandlerAndVisorSequence()
         {
-            if (_seqTime <= 3.0f)
+            if (_seqTime <= 2.8f)
             {
-                float t = Mathf.SmoothStep(0f, 1f, _seqTime / 3.0f);
+                float approach = Mathf.SmoothStep(0f, 1f, _seqTime / 2.8f);
+
                 if (handlerRoot != null)
                 {
                     handlerRoot.position = Vector3.Lerp(
                         new Vector3(-3.35f, 0f, -1.05f),
                         new Vector3(-2.55f, 0f, -2.35f),
-                        t
+                        approach
                     );
                     handlerRoot.rotation = Quaternion.Slerp(
                         Quaternion.Euler(0f, 155f, 0f),
                         Quaternion.Euler(0f, 162f, 0f),
-                        t
+                        approach
                     );
                 }
+
                 if (handlerTorso != null)
                 {
-                    handlerTorso.localRotation = Quaternion.Euler(Mathf.Lerp(4f, 14f, t), 0f, 0f);
+                    handlerTorso.localRotation = Quaternion.Euler(Mathf.Lerp(6f, 14f, approach), 0f, 0f);
                 }
+
                 PositionHeadsetInHandlerHands();
+                return;
             }
-            else if (_seqTime <= 5.6f)
+
+            if (_seqTime <= 5.2f)
             {
-                float t = Mathf.SmoothStep(0f, 1f, (_seqTime - 3.0f) / 2.6f);
+                float t = Mathf.SmoothStep(0f, 1f, (_seqTime - 2.8f) / 2.4f);
+
                 if (handlerTorso != null)
                 {
-                    handlerTorso.localRotation = Quaternion.Euler(Mathf.Lerp(14f, 36f, t), 0f, 0f);
+                    handlerTorso.localRotation = Quaternion.Euler(Mathf.Lerp(14f, 34f, t), 0f, 0f);
                 }
+
                 if (handlerLeftArm != null)
                 {
-                    handlerLeftArm.localRotation = Quaternion.Euler(Mathf.Lerp(-42f, -78f, t), 14f, -10f);
+                    handlerLeftArm.localRotation = Quaternion.Euler(Mathf.Lerp(-30f, -75f, t), 15f, -10f);
                 }
+
                 if (handlerRightArm != null)
                 {
-                    handlerRightArm.localRotation = Quaternion.Euler(Mathf.Lerp(-42f, -78f, t), -14f, 10f);
+                    handlerRightArm.localRotation = Quaternion.Euler(Mathf.Lerp(-30f, -75f, t), -15f, 10f);
                 }
 
                 if (headsetAssembly != null)
                 {
-                    Vector3 handPos = (handlerLeftArm != null && handlerRightArm != null)
-                        ? (handlerLeftArm.position + handlerRightArm.position) * 0.5f + handlerRoot.forward * 0.24f + Vector3.up * 0.04f
-                        : transform.position + transform.forward * 0.45f;
+                    if (!_headsetStartCaptured)
+                    {
+                        _headsetStartCaptured = true;
+                        _headsetStartPosition = headsetAssembly.position;
+                        _headsetStartRotation = headsetAssembly.rotation;
+                    }
 
-                    Vector3 targetPos = transform.position + transform.forward * 0.04f;
-                    headsetAssembly.position = Vector3.Lerp(handPos, targetPos, t);
+                    Vector3 endPos = transform.position + transform.forward * 0.1f;
+                    headsetAssembly.position = Vector3.Lerp(_headsetStartPosition, endPos, t);
+                    headsetAssembly.rotation = Quaternion.Slerp(_headsetStartRotation, transform.rotation, t);
 
-                    Quaternion handRot = Quaternion.LookRotation(transform.position - headsetAssembly.position, Vector3.up);
-                    Quaternion wornRot = transform.rotation;
-                    headsetAssembly.rotation = Quaternion.Slerp(handRot, wornRot, t);
+                    if (t >= 0.94f && !_clampSoundPlayed)
+                    {
+                        _clampSoundPlayed = true;
+                        if (_sfxAudio != null && _clampClip != null)
+                        {
+                            _sfxAudio.PlayOneShot(_clampClip);
+                        }
+                    }
+
+                    if (t >= 0.95f)
+                    {
+                        headsetAssembly.gameObject.SetActive(false);
+
+                        if (blackoutImage != null)
+                        {
+                            blackoutImage.color = Color.Lerp(blackoutImage.color, Color.black, Time.deltaTime * 5f);
+                        }
+                    }
                 }
 
-                if (t >= 0.94f && !_clampSoundPlayed)
+                return;
+            }
+
+            if (headsetAssembly != null)
+            {
+                headsetAssembly.gameObject.SetActive(false);
+            }
+
+            if (blackoutImage != null)
+            {
+                blackoutImage.color = Color.black;
+            }
+
+            if (!_staticSoundPlayed)
+            {
+                _staticSoundPlayed = true;
+                if (_staticAudio != null && _staticGlitchClip != null)
                 {
-                    _clampSoundPlayed = true;
-                    if (_sfxAudio != null && _clampClip != null)
-                    {
-                        _sfxAudio.PlayOneShot(_clampClip);
-                    }
+                    _staticAudio.clip = _staticGlitchClip;
+                    _staticAudio.volume = 0.55f;
+                    _staticAudio.Play();
+                }
+            }
+
+            float insideTime = _seqTime - 5.2f;
+
+            if (insideTime < 3.4f)
+            {
+                RenderStaticAndGlitchFrame(insideTime);
+                if (staticGlitchImage != null)
+                {
+                    float flickerAlpha = Mathf.Clamp01(insideTime / 0.35f) * Random.Range(0.72f, 1.0f);
+                    staticGlitchImage.color = new Color(1f, 1f, 1f, flickerAlpha);
+                }
+                if (postChromaticAberration != null)
+                {
+                    postChromaticAberration.intensity.Override(Random.Range(0.25f, 0.75f));
+                }
+            }
+            else if (insideTime < 5.2f)
+            {
+                float bootFade = 1.0f - Mathf.Clamp01((insideTime - 4.3f) / 0.9f);
+                RenderNeuralBootGrid(insideTime);
+                if (staticGlitchImage != null)
+                {
+                    staticGlitchImage.color = new Color(1f, 1f, 1f, bootFade);
+                }
+                if (_staticAudio != null)
+                {
+                    _staticAudio.volume = bootFade * 0.45f;
+                }
+                if (postChromaticAberration != null)
+                {
+                    postChromaticAberration.intensity.Override(0.06f);
+                }
+                if (ecgMonitor != null)
+                {
+                    ecgMonitor.isFlatline = true;
                 }
             }
             else
             {
-                if (headsetAssembly != null)
-                {
-                    headsetAssembly.gameObject.SetActive(false);
-                }
-
-                if (blackoutImage != null)
-                {
-                    blackoutImage.color = Color.black;
-                }
-
-                if (!_staticSoundPlayed)
-                {
-                    _staticSoundPlayed = true;
-                    if (_staticAudio != null && _staticGlitchClip != null)
-                    {
-                        _staticAudio.clip = _staticGlitchClip;
-                        _staticAudio.volume = 0.55f;
-                        _staticAudio.Play();
-                    }
-                }
-
-                float insideTime = _seqTime - 5.6f;
-
-                if (insideTime < 3.4f)
-                {
-                    RenderStaticAndGlitchFrame(insideTime);
-                    if (staticGlitchImage != null)
-                    {
-                        float flickerAlpha = Mathf.Clamp01(insideTime / 0.35f) * Random.Range(0.72f, 1.0f);
-                        staticGlitchImage.color = new Color(1f, 1f, 1f, flickerAlpha);
-                    }
-                    if (postChromaticAberration != null)
-                    {
-                        postChromaticAberration.intensity.Override(Random.Range(0.25f, 0.75f));
-                    }
-                }
-                else if (insideTime < 5.2f)
-                {
-                    float bootFade = 1.0f - Mathf.Clamp01((insideTime - 4.3f) / 0.9f);
-                    RenderNeuralBootGrid(insideTime);
-                    if (staticGlitchImage != null)
-                    {
-                        staticGlitchImage.color = new Color(1f, 1f, 1f, bootFade);
-                    }
-                    if (_staticAudio != null)
-                    {
-                        _staticAudio.volume = bootFade * 0.45f;
-                    }
-                    if (postChromaticAberration != null)
-                    {
-                        postChromaticAberration.intensity.Override(0.06f);
-                    }
-                    if (ecgMonitor != null)
-                    {
-                        ecgMonitor.isFlatline = true;
-                    }
-                }
-                else
-                {
-                    if (staticGlitchImage != null) staticGlitchImage.color = new Color(1f, 1f, 1f, 0f);
-                    if (_staticAudio != null && _staticAudio.isPlaying) _staticAudio.Stop();
-                    if (monologueText != null) monologueText.text = "";
-                    if (monologuePanel != null) monologuePanel.SetActive(false);
-                    if (postChromaticAberration != null) postChromaticAberration.intensity.Override(0.06f);
-                }
+                if (staticGlitchImage != null) staticGlitchImage.color = new Color(1f, 1f, 1f, 0f);
+                if (_staticAudio != null && _staticAudio.isPlaying) _staticAudio.Stop();
+                if (monologueText != null) monologueText.text = "";
+                if (monologuePanel != null) monologuePanel.SetActive(false);
+                if (postChromaticAberration != null) postChromaticAberration.intensity.Override(0.06f);
             }
         }
 
@@ -615,14 +636,48 @@ namespace DigitalCurtain.Hospital
             _staticTex.Apply(false);
         }
 
+        private void StartStruggle()
+        {
+            _struggleTimer = struggleDuration;
+
+            if (_breathAudio != null && _generatedCalmBreath != null && !_sequenceTriggered)
+            {
+                _breathAudio.Stop();
+                _breathAudio.volume = 0.5f;
+                _breathAudio.PlayOneShot(_generatedCalmBreath);
+            }
+        }
+
+        private bool StrugglePressed()
+        {
+            bool keyboardPress = false;
+#if ENABLE_INPUT_SYSTEM
+            if (Keyboard.current != null && Keyboard.current.spaceKey.wasPressedThisFrame) keyboardPress = true;
+#else
+            keyboardPress = Input.GetKeyDown(KeyCode.Space);
+#endif
+            if (keyboardPress) return true;
+
+            if (!XRSettings.isDeviceActive) return false;
+
+            UnityEngine.XR.InputDevice rightHand = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(UnityEngine.XR.XRNode.RightHand);
+            if (rightHand.isValid && rightHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out bool trigger) && trigger)
+            {
+                return true;
+            }
+
+            UnityEngine.XR.InputDevice leftHand = UnityEngine.XR.InputDevices.GetDeviceAtXRNode(UnityEngine.XR.XRNode.LeftHand);
+            return leftHand.isValid && leftHand.TryGetFeatureValue(UnityEngine.XR.CommonUsages.triggerButton, out bool leftTrigger) && leftTrigger;
+        }
+
         private void UpdateMonologue(float clock)
         {
             if (monologueText == null) return;
 
             int activeIdx = -1;
-            for (int i = 0; i < MonologueLines.Length; i++)
+            for (int i = 0; i < HeroLines.Length; i++)
             {
-                if (clock >= MonologueLines[i].time)
+                if (clock >= HeroLines[i].time)
                 {
                     activeIdx = i;
                 }
@@ -640,10 +695,10 @@ namespace DigitalCurtain.Hospital
                 _lastDialogueIndex = activeIdx;
             }
 
-            string fullLine = MonologueLines[activeIdx].line;
-            float lineElapsed = clock - MonologueLines[activeIdx].time;
+            string fullLine = HeroLines[activeIdx].line;
+            float lineElapsed = clock - HeroLines[activeIdx].time;
 
-            if (lineElapsed > 3.6f && activeIdx < MonologueLines.Length - 1)
+            if (lineElapsed > 3.6f && activeIdx < HeroLines.Length - 1)
             {
                 monologueText.text = "";
                 if (monologuePanel != null) monologuePanel.SetActive(false);
