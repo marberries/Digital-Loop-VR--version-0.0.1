@@ -271,7 +271,7 @@ namespace DigitalCurtain.Hospital
                 _unease -= uneaseDecayRate * dt;
             }
 
-            _unease = Mathf.Clamp01(_unease);
+            _unease = Mathf.Clamp(_unease, 0f, Mathf.Max(1f, uneaseThreshold));
         }
 
         private Transform FindGazedWardEntity()
