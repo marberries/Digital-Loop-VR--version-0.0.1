@@ -243,6 +243,118 @@ namespace DigitalCurtain.Hospital
             }
         }
 
+        private void UpdateUnease(float dt)
+        {
+            Transform lookedAt = FindGazedWardEntity();
+
+            if (lookedAt == null)
+            {
+                _gazeTarget = null;
+                _gazeDwell = 0f;
+            }
+            else if (lookedAt != _gazeTarget)
+            {
+                _gazeTarget = lookedAt;
+                _gazeDwell = 0f;
+            }
+            else
+            {
+                _gazeDwell += dt;
+            }
+
+            if (_gazeTarget != null && _gazeDwell >= gazeHoldThreshold)
+            {
+                _unease += uneaseGrowthRate * dt;
+            }
+            else if (uneaseDecayRate > 0f)
+            {
+                _unease -= uneaseDecayRate * dt;
+            }
+
+            _unease = Mathf.Clamp01(_unease);
+        }
+
+        private Transform FindGazedWardEntity()
+        {
+            if (_cam == null || _gazeTargets.Count == 0) return null;
+
+            Transform best = null;
+            float bestAngle = float.MaxValue;
+            Vector3 camPos = _cam.transform.position;
+            Vector3 camForward = _cam.transform.forward;
+
+            for (int i = 0; i < _gazeTargets.Count; i++)
+            {
+                Transform candidate = _gazeTargets[i];
+                if (candidate == null) continue;
+
+                Vector3 point = candidate.position;
+                Renderer renderer = candidate.GetComponentInChildren<Renderer>();
+                if (renderer != null) point = renderer.bounds.center;
+
+                Vector3 toTarget = point - camPos;
+                float distance = toTarget.magnitude;
+                if (distance <= 0.001f || distance > gazeMaxDistance) continue;
+
+                float angle = Vector3.Angle(camForward, toTarget);
+                if (angle > gazeMaxAngle) continue;
+
+                if (angle < bestAngle)
+                {
+                    bestAngle = angle;
+                    best = candidate;
+                }
+            }
+
+            return best;
+        }
+
+        private void CollectWardEntities()
+        {
+            _gazeTargets.Clear();
+
+            if (wardEntities != null)
+            {
+                for (int i = 0; i < wardEntities.Length; i++)
+                {
+                    if (wardEntities[i] != null && !_gazeTargets.Contains(wardEntities[i]))
+                    {
+                        _gazeTargets.Add(wardEntities[i]);
+                    }
+                }
+            }
+
+            if (_gazeTargets.Count > 0) return;
+
+            MonoBehaviour[] behaviours = FindObjectsByType<MonoBehaviour>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+            for (int i = 0; i < behaviours.Length; i++)
+            {
+                MonoBehaviour behaviour = behaviours[i];
+                if (behaviour != null && behaviour.GetType().Name == "WardEntityIdle")
+                {
+                    _gazeTargets.Add(behaviour.transform);
+                }
+            }
+        }
+
+        private void TriggerSequence()
+        {
+            if (_sequenceTriggered) return;
+
+            _sequenceTriggered = true;
+            _seqTime = 0f;
+            _lastInhaleTriggered = false;
+
+            if (handlerRoot != null) handlerRoot.gameObject.SetActive(true);
+            if (headsetAssembly != null) headsetAssembly.gameObject.SetActive(true);
+
+            if (ecgMonitor != null)
+            {
+                ecgMonitor.beatsPerMinute = 138f;
+                ecgMonitor.scrollSpeed = 0.80f;
+            }
+        }
+
         private void UpdatePlayerArms(float breathWave)
         {
             float tenseLift = _sequenceTriggered ? Mathf.Clamp01(_seqTime / 2.2f) * 0.055f : 0f;
