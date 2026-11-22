@@ -10,106 +10,86 @@ public static class DoctorSetupAndShotRunner
     private const string FlagPath = "Temp/run_doctor_setup.flag";
     private const string ResultPath = "Temp/run_doctor_setup.result";
 
-    private static PatientBreathingAndIntro _intro;
-    private static Transform _rig;
-    private static Transform _lead;
-    private static Transform _nurse;
-    private static float _start = -1f;
-    private static bool _started;
-    private static int _errors;
-
     static DoctorSetupAndShotRunner()
     {
         if (!File.Exists(FlagPath)) return;
         File.Delete(FlagPath);
-        Application.logMessageReceived += (c, s, t) => { if (t == LogType.Error || t == LogType.Exception) _errors++; };
-        EditorApplication.delayCall += Build;
+        EditorApplication.delayCall += Run;
     }
 
-    private static void Build()
+    private static void Run()
     {
         string result;
         try
         {
             HospitalExperienceSetup.BuildPlayableExperience();
-            result = "SETUP_OK";
+
+            GameObject lead = GameObject.Find("Entity_Doctor_Lead");
+            GameObject nurse = GameObject.Find("Entity_Nurse_Monitor");
+            GameObject head = lead != null ? FindChild(lead.transform, "Head_QuestionMark") : null;
+
+            RenderShot("doctor_01_lead", new Vector3(-1.5f, 0.78f, -3.2f), LookAt(new Vector3(-2.55f, 1.72f, -1.55f), new Vector3(-1.5f, 0.78f, -3.2f)), 55f);
+            RenderShot("doctor_02_nurse", new Vector3(-1.5f, 0.78f, -3.2f), LookAt(new Vector3(-0.28f, 1.72f, -2.05f), new Vector3(-1.5f, 0.78f, -3.2f)), 55f);
+            RenderShot("doctor_03_wide", new Vector3(-1.5f, 0.78f, -3.2f), Quaternion.Euler(8f, 0f, 0f), 75f);
+            RenderShot("doctor_04_profile", new Vector3(0.3f, 1.3f, -0.4f), LookAt(new Vector3(-2.55f, 1.4f, -1.55f), new Vector3(0.3f, 1.3f, -0.4f)), 40f);
+
+            result = "OK lead=" + (lead != null) + " nurse=" + (nurse != null) + " head=" + (head != null) +
+                     " lookAt=" + (head != null && head.GetComponent<LookAtPlayer>() != null);
         }
         catch (System.Exception exception)
         {
-            File.WriteAllText(ResultPath, "SETUP_FAIL " + exception);
-            return;
+            result = "FAIL " + exception;
         }
 
+        File.WriteAllText(ResultPath, result);
         Debug.Log("[DoctorSetupAndShotRunner] " + result);
-        EditorApplication.update += Tick;
-        EditorApplication.EnterPlaymode();
     }
 
-    private static void Tick()
+    private static GameObject FindChild(Transform root, string name)
     {
-        if (!EditorApplication.isPlaying)
+        Transform[] all = root.GetComponentsInChildren<Transform>(true);
+        for (int i = 0; i < all.Length; i++)
         {
-            if (_started) Finish("LEFT_EARLY");
-            return;
+            if (all[i].name == name) return all[i].gameObject;
         }
-
-        if (!_started)
-        {
-            _started = true;
-            _start = (float)EditorApplication.timeSinceStartup;
-            _intro = Object.FindAnyObjectByType<PatientBreathingAndIntro>();
-            GameObject offset = GameObject.Find("Camera Offset");
-            if (offset != null)
-            {
-                _rig = offset.transform;
-                PatientLookController look = _rig.GetComponent<PatientLookController>();
-                if (look != null) look.enabled = false;
-            }
-
-            GameObject lead = GameObject.Find("Entity_Doctor_Lead");
-            if (lead != null) _lead = lead.transform;
-            GameObject nurse = GameObject.Find("Entity_Nurse_Monitor");
-            if (nurse != null) _nurse = nurse.transform;
-            return;
-        }
-
-        float t = (float)EditorApplication.timeSinceStartup - _start;
-
-        if (t < 1.0f && _rig != null)
-        {
-            _rig.rotation = Quaternion.Euler(15f, 0f, 0f);
-        }
-        if (t > 1.0f && t < 2.4f) Aim(_lead);
-        if (t > 2.4f) Aim(_nurse);
-
-        if (t > 1.2f) Shot("doctor_01_default");
-        if (t > 2.0f) Shot("doctor_02_lead");
-        if (t > 3.2f) Shot("doctor_03_nurse");
-        if (t > 4.5f) Finish("DONE");
-        if (t > 20f) Finish("TIMEOUT");
+        return null;
     }
 
-    private static void Aim(Transform target)
+    private static Quaternion LookAt(Vector3 target, Vector3 from)
     {
-        if (_rig == null || target == null || _intro == null) return;
-        Vector3 point = target.position + Vector3.up * 1.55f;
-        Vector3 direction = point - _intro.transform.position;
-        if (direction.sqrMagnitude < 0.001f) return;
-        _rig.rotation = Quaternion.LookRotation(direction, Vector3.up);
+        Vector3 direction = target - from;
+        return direction.sqrMagnitude < 0.001f ? Quaternion.identity : Quaternion.LookRotation(direction, Vector3.up);
     }
 
-    private static void Shot(string name)
+    private static void RenderShot(string name, Vector3 position, Quaternion rotation, float fieldOfView)
     {
-        if (File.Exists($"Temp/{name}.png")) return;
-        ScreenCapture.CaptureScreenshot($"Temp/{name}.png");
-    }
+        GameObject cameraObject = new GameObject("Preview_Camera");
+        cameraObject.transform.position = position;
+        cameraObject.transform.rotation = rotation;
 
-    private static void Finish(string reason)
-    {
-        EditorApplication.update -= Tick;
-        File.WriteAllText(ResultPath, reason + " errors=" + _errors);
-        Debug.Log("[DoctorSetupAndShotRunner] " + reason + " errors=" + _errors);
-        if (EditorApplication.isPlaying) EditorApplication.ExitPlaymode();
-        _started = false;
+        Camera previewCamera = cameraObject.AddComponent<Camera>();
+        previewCamera.fieldOfView = fieldOfView;
+        previewCamera.nearClipPlane = 0.02f;
+        previewCamera.farClipPlane = 60f;
+        previewCamera.clearFlags = CameraClearFlags.SolidColor;
+        previewCamera.backgroundColor = Color.black;
+
+        RenderTexture target = new RenderTexture(1280, 720, 24, RenderTextureFormat.ARGB32);
+        target.Create();
+        previewCamera.targetTexture = target;
+        previewCamera.Render();
+
+        RenderTexture.active = target;
+        Texture2D shot = new Texture2D(1280, 720, TextureFormat.RGB24, false);
+        shot.ReadPixels(new Rect(0, 0, 1280, 720), 0, 0);
+        shot.Apply();
+        RenderTexture.active = null;
+
+        File.WriteAllBytes($"Temp/{name}.png", shot.EncodeToPNG());
+
+        previewCamera.targetTexture = null;
+        Object.DestroyImmediate(shot);
+        Object.DestroyImmediate(target);
+        Object.DestroyImmediate(cameraObject);
     }
 }
