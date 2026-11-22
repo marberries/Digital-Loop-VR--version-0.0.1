@@ -15,6 +15,9 @@ public static class HospitalExperienceSetup
     public static void BuildPlayableExperience()
     {
         HospitalAnimationSetup.AttachAnimations();
+        HospitalWardEntitiesBuilder.BuildWardEntities();
+        ApplyLyingPose();
+        FixPillBottle();
 
         GameObject mainCamera = GameObject.Find("Main Camera");
         GameObject cameraOffset = GameObject.Find("Camera Offset");
@@ -86,8 +89,9 @@ public static class HospitalExperienceSetup
         if (look == null) look = cameraOffset.gameObject.AddComponent<PatientLookController>();
 
         look.sensitivity = 2.2f;
-        look.minPitch = -72f;
-        look.maxPitch = 66f;
+        look.basePitch = 0f;
+        look.minPitch = -55f;
+        look.maxPitch = 42f;
         look.lockCursor = true;
         look.intro = intro;
         look.enabled = true;
@@ -153,6 +157,55 @@ public static class HospitalExperienceSetup
         feedback.chromaticAberration = chromatic;
         feedback.droneSource = drone;
         feedback.heartbeatSource = heartbeat;
+    }
+
+    private static void ApplyLyingPose()
+    {
+        GameObject origin = GameObject.Find("XR Origin (VR)");
+        GameObject offset = GameObject.Find("Camera Offset");
+        GameObject mainCamera = GameObject.Find("Main Camera");
+        if (origin == null || offset == null || mainCamera == null)
+        {
+            Debug.LogWarning("[HospitalExperienceSetup] Camera rig nodes were not found; lying pose was skipped.");
+            return;
+        }
+
+        // The player is strapped to the bed: the rig sits on the mattress, head on the pillow,
+        // and the view is tilted forward so the patient sees their own body and the ward beyond.
+        origin.transform.position = new Vector3(-1.5f, 0.65f, -3.2f);
+        origin.transform.rotation = Quaternion.Euler(75f, 0f, 0f);
+
+        offset.transform.localPosition = Vector3.zero;
+        offset.transform.localRotation = Quaternion.identity;
+
+        mainCamera.transform.localPosition = Vector3.zero;
+        mainCamera.transform.localRotation = Quaternion.identity;
+
+        Rigidbody[] bodies = origin.GetComponentsInChildren<Rigidbody>(true);
+        for (int i = 0; i < bodies.Length; i++)
+        {
+            Object.DestroyImmediate(bodies[i]);
+        }
+    }
+
+    private static void FixPillBottle()
+    {
+        GameObject bottle = GameObject.Find("Pill_Bottle");
+        if (bottle == null) bottle = GameObject.Find("Capsule");
+        if (bottle == null) return;
+
+        Rigidbody body = bottle.GetComponent<Rigidbody>();
+        if (body != null) Object.DestroyImmediate(body);
+
+        bottle.name = "Pill_Bottle";
+        bottle.transform.position = new Vector3(-0.54f, 0.655f, -4.15f);
+        bottle.transform.rotation = Quaternion.identity;
+
+        Rigidbody[] childBodies = bottle.GetComponentsInChildren<Rigidbody>(true);
+        for (int i = 0; i < childBodies.Length; i++)
+        {
+            Object.DestroyImmediate(childBodies[i]);
+        }
     }
 
     private static void SetupDirector(PatientBreathingAndIntro intro)
