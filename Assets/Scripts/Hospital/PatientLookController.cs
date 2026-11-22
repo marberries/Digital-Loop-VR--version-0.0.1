@@ -14,6 +14,8 @@ namespace DigitalCurtain.Hospital
     public class PatientLookController : MonoBehaviour
     {
         public float sensitivity = 2.0f;
+        [Tooltip("Base tilt of the bed pose. 75 degrees keeps the player lying down, looking towards the feet.")]
+        public float basePitch = 75f;
         public float minPitch = -72f;
         public float maxPitch = 66f;
         public bool lockCursor = true;
@@ -44,7 +46,7 @@ namespace DigitalCurtain.Hospital
             Vector2 delta = ReadLookDelta();
             _yaw += delta.x * sensitivity;
             _pitch = Mathf.Clamp(_pitch - delta.y * sensitivity, minPitch, maxPitch);
-            transform.localRotation = Quaternion.Euler(_pitch, _yaw, 0f);
+            transform.localRotation = Quaternion.Euler(basePitch, 0f, 0f) * Quaternion.Euler(_pitch, _yaw, 0f);
         }
 
         private void HandleCursorLock()
