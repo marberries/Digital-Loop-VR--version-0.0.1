@@ -33,13 +33,21 @@ public static class ExperienceSetupRunner
             if (bottle != null)
             {
                 Rigidbody leftover = bottle.GetComponent<Rigidbody>();
-                if (leftover != null) Object.DestroyImmediate(leftover);
-                foreach (Rigidbody rb in bottle.GetComponentsInChildren<Rigidbody>(true)) Object.DestroyImmediate(rb);
+                if (leftover != null)
+                {
+                    leftover.isKinematic = true;
+                    leftover.useGravity = false;
+                    leftover.constraints = RigidbodyConstraints.FreezeAll;
+                    EditorUtility.SetDirty(leftover);
+                }
                 EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
                 EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
             }
 
-            result = "OK scene=" + EditorSceneManager.GetActiveScene().path + " | " + diag;
+            string scenePath = AssetDatabase.GetAssetPath(EditorSceneManager.GetActiveScene());
+            string text = System.IO.File.ReadAllText(scenePath);
+            string disk = "kinematicOnDisk=" + text.Contains("m_IsKinematic: 1") + " rigidBodiesOnDisk=" + System.Text.RegularExpressions.Regex.Matches(text, "Rigidbody:").Count;
+            result = "OK scene=" + scenePath + " | " + diag + " | " + disk;
         }
         catch (System.Exception exception)
         {
