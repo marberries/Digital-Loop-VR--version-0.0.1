@@ -44,7 +44,7 @@ public static class ExperienceSetupRunner
                 EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
             }
 
-            string scenePath = AssetDatabase.GetAssetPath(EditorSceneManager.GetActiveScene());
+            string scenePath = EditorSceneManager.GetActiveScene().path;
             string text = System.IO.File.ReadAllText(scenePath);
             string disk = "kinematicOnDisk=" + text.Contains("m_IsKinematic: 1") + " rigidBodiesOnDisk=" + System.Text.RegularExpressions.Regex.Matches(text, "Rigidbody:").Count;
             result = "OK scene=" + scenePath + " | " + diag + " | " + disk;
