@@ -162,8 +162,8 @@ namespace DigitalCurtain.Hospital
 
             if (handlerRoot != null)
             {
-                handlerRoot.position = new Vector3(-3.35f, 0f, -1.05f);
-                handlerRoot.rotation = Quaternion.Euler(0f, 155f, 0f);
+                handlerRoot.position = new Vector3(-2.55f, 0f, -1.55f);
+                handlerRoot.rotation = Quaternion.Euler(0f, 160f, 0f);
                 handlerRoot.gameObject.SetActive(false);
             }
 
@@ -417,13 +417,13 @@ namespace DigitalCurtain.Hospital
                 if (handlerRoot != null)
                 {
                     handlerRoot.position = Vector3.Lerp(
-                        new Vector3(-3.35f, 0f, -1.05f),
-                        new Vector3(-2.55f, 0f, -2.35f),
+                        new Vector3(-2.55f, 0f, -1.55f),
+                        new Vector3(-1.50f, 0f, -2.50f),
                         approach
                     );
                     handlerRoot.rotation = Quaternion.Slerp(
-                        Quaternion.Euler(0f, 155f, 0f),
-                        Quaternion.Euler(0f, 162f, 0f),
+                        Quaternion.Euler(0f, 160f, 0f),
+                        Quaternion.Euler(0f, 180f, 0f),
                         approach
                     );
                 }
@@ -448,12 +448,12 @@ namespace DigitalCurtain.Hospital
 
                 if (handlerLeftArm != null)
                 {
-                    handlerLeftArm.localRotation = Quaternion.Euler(Mathf.Lerp(-30f, -75f, t), 15f, -10f);
+                    handlerLeftArm.localRotation = Quaternion.Euler(Mathf.Lerp(-30f, -70f, t), 15f, -10f);
                 }
 
                 if (handlerRightArm != null)
                 {
-                    handlerRightArm.localRotation = Quaternion.Euler(Mathf.Lerp(-30f, -75f, t), -15f, 10f);
+                    handlerRightArm.localRotation = Quaternion.Euler(Mathf.Lerp(-30f, -70f, t), -15f, 10f);
                 }
 
                 if (headsetAssembly != null)
@@ -478,13 +478,13 @@ namespace DigitalCurtain.Hospital
                         }
                     }
 
-                    if (t >= 0.95f)
+                    if (t >= 0.9f)
                     {
                         headsetAssembly.gameObject.SetActive(false);
 
                         if (blackoutImage != null)
                         {
-                            blackoutImage.color = Color.Lerp(blackoutImage.color, Color.black, Time.deltaTime * 5f);
+                            blackoutImage.color = Color.Lerp(blackoutImage.color, Color.black, Time.deltaTime * 4f);
                         }
                     }
                 }

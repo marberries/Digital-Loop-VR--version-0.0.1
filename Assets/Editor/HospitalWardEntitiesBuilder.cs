@@ -5,145 +5,98 @@ using UnityEngine;
 
 public static class HospitalWardEntitiesBuilder
 {
-    [MenuItem("Tools/Hospital Ward/5. Build Ward Entities (Detailed Doctors)")]
+    [MenuItem("Tools/Hospital Ward/5. Build Doctors (White Coats & Glowing Question Marks)")]
     public static void BuildWardEntities()
     {
-        Material coatMat = HospitalMaterials.CreateMaterial("Doctor_Coat_Mat", new Color(0.16f, 0.18f, 0.20f), 0.22f, 0.05f);
-        Material trimMat = HospitalMaterials.CreateMaterial("Doctor_Trim_Mat", new Color(0.10f, 0.11f, 0.13f), 0.18f, 0.0f);
-        Material gloveMat = HospitalMaterials.CreateMaterial("Doctor_Glove_Mat", new Color(0.22f, 0.24f, 0.27f), 0.35f, 0.05f);
-        Material maskMat = HospitalMaterials.CreateMaterial("Doctor_Mask_Mat", new Color(0.70f, 0.72f, 0.75f), 0.10f, 0.0f);
-        Material qMarkGlowMat = HospitalMaterials.CreateEmissiveMaterial(
-            "Doctor_QuestionMark_Mat",
-            new Color(0.95f, 0.97f, 1.0f),
-            new Color(0.88f, 0.96f, 1.0f),
-            4.2f
-        );
-
         PatientBreathingAndIntro intro = Object.FindAnyObjectByType<PatientBreathingAndIntro>(FindObjectsInactive.Include);
-
-        GameObject previousRoot = GameObject.Find("Ward_Entities");
-        if (previousRoot != null)
-        {
-            Object.DestroyImmediate(previousRoot);
-        }
-
-        GameObject previousHandler = GameObject.Find("Mysterious_Handler");
-        if (previousHandler != null)
-        {
-            Object.DestroyImmediate(previousHandler);
-        }
-
-        GameObject root = new GameObject("Ward_Entities");
-        root.transform.position = Vector3.zero;
-        root.transform.rotation = Quaternion.identity;
-
-        Vector3[] slots =
-        {
-            new Vector3(-3.55f, 0f, -2.35f),
-            new Vector3( 0.30f, 0f, -1.62f),
-            new Vector3( 3.25f, 0f,  0.85f),
-            new Vector3(-0.55f, 0f,  3.25f)
-        };
-
-        string[] names =
-        {
-            "Ward_Entity_Bedside_Left",
-            "Ward_Entity_Footboard",
-            "Ward_Entity_Right_Wall",
-            "Ward_Entity_Back_Wall"
-        };
-
-        Transform[] figures = new Transform[slots.Length];
-        for (int i = 0; i < slots.Length; i++)
-        {
-            Vector3 spot = FindFreeSpot(slots[i]);
-            Vector3 facing = new Vector3(-1.50f, 0f, -3.80f) - spot;
-            float heightScale = 0.97f + (i % 3) * 0.03f;
-
-            BuildEntityFigure(
-                root.transform, names[i], spot, facing, heightScale,
-                coatMat, trimMat, gloveMat, maskMat, qMarkGlowMat,
-                false, intro);
-
-            figures[i] = root.transform.Find(names[i]);
-        }
-
-        BuildEntityFigure(
-            root.transform,
-            "Mysterious_Handler",
-            new Vector3(-3.35f, 0f, -1.05f),
-            new Vector3(-1.50f, 0f, -3.55f) - new Vector3(-3.35f, 0f, -1.05f),
-            1.04f,
-            coatMat, trimMat, gloveMat, maskMat, qMarkGlowMat,
-            true, intro);
-
-        WireToIntro(intro, figures);
-
+        BuildAllThreeQuestionMarkEntities(intro);
         EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
-        Debug.Log($"[HospitalWardEntitiesBuilder] Built {figures.Length} detailed ward entities and the lead doctor.");
     }
 
-    private static void BuildEntityFigure(
-        Transform parent, string name, Vector3 worldPos, Vector3 facing, float heightScale,
-        Material coatMat, Material trimMat, Material gloveMat, Material maskMat, Material qMarkGlowMat,
+    public static void BuildAllThreeQuestionMarkEntities(PatientBreathingAndIntro intro)
+    {
+        GameObject oldGroup = GameObject.Find("Ward_QuestionMark_Entities");
+        if (oldGroup != null) DestroyImmediate(oldGroup);
+
+        GameObject oldSingle = GameObject.Find("Mysterious_Handler");
+        if (oldSingle != null) DestroyImmediate(oldSingle);
+
+        GameObject oldWardEntities = GameObject.Find("Ward_Entities");
+        if (oldWardEntities != null) DestroyImmediate(oldWardEntities);
+
+        GameObject group = new GameObject("Ward_QuestionMark_Entities");
+
+        // Real, opaque materials so the doctors read as people instead of black pills.
+        Material whiteCoatMat = HospitalMaterials.CreateMaterial("Doc_WhiteCoat_Mat", new Color(0.92f, 0.93f, 0.94f), 0.18f, 0f);
+        Material darkPantsMat = HospitalMaterials.CreateMaterial("Doc_DarkPants_Mat", new Color(0.16f, 0.17f, 0.20f), 0.28f, 0f);
+        Material skinMat = HospitalMaterials.CreateMaterial("Doc_Skin_Mat", new Color(0.80f, 0.62f, 0.52f), 0.35f, 0f);
+        Material qMarkGlowMat = HospitalMaterials.CreateEmissiveMaterial("Doc_QMark_Mat", Color.white, Color.white, 6.0f);
+
+        Transform lead = BuildEntityFigure(
+            group.transform, "Entity_Doctor_Lead", new Vector3(-2.55f, 0f, -1.55f), new Vector3(0f, 160f, 0f),
+            whiteCoatMat, darkPantsMat, skinMat, qMarkGlowMat, true, intro);
+
+        Transform nurse = BuildEntityFigure(
+            group.transform, "Entity_Nurse_Monitor", new Vector3(-0.28f, 0f, -2.05f), new Vector3(0f, 215f, 0f),
+            whiteCoatMat, darkPantsMat, skinMat, qMarkGlowMat, false, null);
+
+        if (intro != null)
+        {
+            Undo.RecordObject(intro, "Wire Doctor Gaze Targets");
+            intro.wardEntities = new[] { lead, nurse };
+            EditorUtility.SetDirty(intro);
+        }
+
+        Debug.Log("[HospitalWardEntitiesBuilder] Built the lead doctor and the nurse with glowing question-mark heads.");
+    }
+
+    private static Transform BuildEntityFigure(
+        Transform parent, string name, Vector3 worldPos, Vector3 eulerRot,
+        Material coatMat, Material pantsMat, Material skinMat, Material qMarkMat,
         bool isLeadHandler, PatientBreathingAndIntro intro)
     {
         GameObject root = new GameObject(name);
         root.transform.SetParent(parent);
         root.transform.position = worldPos;
+        root.transform.rotation = Quaternion.Euler(eulerRot);
 
-        if (facing.sqrMagnitude > 0.001f)
-        {
-            root.transform.rotation = Quaternion.LookRotation(new Vector3(facing.x, 0f, facing.z), Vector3.up);
-        }
+        // Legs
+        BuildPart(root.transform, "Leg_L", PrimitiveType.Capsule, new Vector3(-0.15f, 0.45f, 0f), Vector3.zero, new Vector3(0.18f, 0.45f, 0.18f), pantsMat);
+        BuildPart(root.transform, "Leg_R", PrimitiveType.Capsule, new Vector3(0.15f, 0.45f, 0f), Vector3.zero, new Vector3(0.18f, 0.45f, 0.18f), pantsMat);
 
-        root.transform.localScale = Vector3.one * heightScale;
-
-        // Legs (under the coat)
-        BuildPart(root.transform, "Leg_L", PrimitiveType.Capsule, new Vector3(-0.12f, 0.4f, 0f), Vector3.zero, new Vector3(0.15f, 0.45f, 0.15f), trimMat);
-        BuildPart(root.transform, "Leg_R", PrimitiveType.Capsule, new Vector3(0.12f, 0.4f, 0f), Vector3.zero, new Vector3(0.15f, 0.45f, 0.15f), trimMat);
-
-        // Torso / Medical Gown
+        // Torso: a cube reads as a body, a capsule reads as a pill.
         GameObject torso = new GameObject("Torso");
         torso.transform.SetParent(root.transform);
         torso.transform.localPosition = new Vector3(0f, 1.0f, 0f);
         torso.transform.localRotation = Quaternion.Euler(isLeadHandler ? 6f : 3f, 0f, 0f);
 
-        BuildPart(torso.transform, "Chest", PrimitiveType.Capsule, new Vector3(0f, 0.25f, 0f), Vector3.zero, new Vector3(0.5f, 0.35f, 0.3f), coatMat);
-        BuildPart(torso.transform, "Abdomen", PrimitiveType.Capsule, new Vector3(0f, -0.05f, 0f), Vector3.zero, new Vector3(0.45f, 0.3f, 0.25f), coatMat);
-        BuildPart(torso.transform, "Collar", PrimitiveType.Cylinder, new Vector3(0f, 0.55f, 0f), Vector3.zero, new Vector3(0.25f, 0.05f, 0.2f), coatMat);
-
-        // Head: a three dimensional glowing question mark instead of a face.
-        GameObject head = new GameObject("Head_QuestionMark");
-        head.transform.SetParent(torso.transform);
-        head.transform.localPosition = new Vector3(0f, 0.75f, 0f);
-        head.transform.localRotation = Quaternion.Euler(10f, 0f, 0f);
-
-        BuildPart(head.transform, "Q_Hook_Top", PrimitiveType.Sphere, new Vector3(0f, 0.05f, 0f), Vector3.zero, new Vector3(0.18f, 0.08f, 0.05f), qMarkGlowMat);
-        BuildPart(head.transform, "Q_Hook_L", PrimitiveType.Sphere, new Vector3(-0.08f, 0.02f, 0f), Vector3.zero, new Vector3(0.06f, 0.08f, 0.05f), qMarkGlowMat);
-        BuildPart(head.transform, "Q_Hook_R", PrimitiveType.Sphere, new Vector3(0.08f, 0.02f, 0f), Vector3.zero, new Vector3(0.06f, 0.08f, 0.05f), qMarkGlowMat);
-        BuildPart(head.transform, "Q_Stem", PrimitiveType.Cube, new Vector3(0f, -0.04f, 0f), new Vector3(0f, 0f, 15f), new Vector3(0.05f, 0.10f, 0.04f), qMarkGlowMat);
-        BuildPart(head.transform, "Q_Dot", PrimitiveType.Sphere, new Vector3(0f, -0.13f, 0f), Vector3.zero, new Vector3(0.06f, 0.06f, 0.06f), qMarkGlowMat);
+        BuildPart(torso.transform, "Chest_Cube", PrimitiveType.Cube, new Vector3(0f, 0.25f, 0f), Vector3.zero, new Vector3(0.5f, 0.6f, 0.3f), coatMat);
+        BuildPart(torso.transform, "Lab_Coat_Tail", PrimitiveType.Cube, new Vector3(0f, -0.12f, 0f), Vector3.zero, new Vector3(0.46f, 0.45f, 0.28f), coatMat);
 
         // Arms
-        Vector3 armLRot = isLeadHandler ? new Vector3(-30f, 15f, -10f) : new Vector3(-5f, 0f, -8f);
-        Vector3 armRRot = isLeadHandler ? new Vector3(-30f, -15f, 10f) : new Vector3(-5f, 0f, 8f);
-
         GameObject armL = new GameObject("Arm_L");
         armL.transform.SetParent(torso.transform);
-        armL.transform.localPosition = new Vector3(-0.25f, 0.45f, 0f);
-        armL.transform.localRotation = Quaternion.Euler(armLRot);
-        BuildPart(armL.transform, "UpperArm_L", PrimitiveType.Capsule, new Vector3(0f, -0.15f, 0f), Vector3.zero, new Vector3(0.12f, 0.18f, 0.12f), coatMat);
-        BuildPart(armL.transform, "Forearm_L", PrimitiveType.Capsule, new Vector3(0.04f, -0.35f, isLeadHandler ? 0.15f : 0.02f), new Vector3(isLeadHandler ? 60f : 10f, 0f, -5f), new Vector3(0.10f, 0.18f, 0.10f), coatMat);
-        BuildPart(armL.transform, "Hand_L", PrimitiveType.Sphere, new Vector3(0.06f, -0.48f, isLeadHandler ? 0.30f : 0.04f), Vector3.zero, new Vector3(0.08f, 0.08f, 0.10f), gloveMat);
+        armL.transform.localPosition = new Vector3(-0.35f, 0.45f, 0f);
+        armL.transform.localRotation = Quaternion.Euler(isLeadHandler ? -30f : -5f, 15f, -10f);
+        BuildPart(armL.transform, "UpperArm_L", PrimitiveType.Capsule, new Vector3(0f, -0.15f, 0f), Vector3.zero, new Vector3(0.14f, 0.2f, 0.14f), coatMat);
+        BuildPart(armL.transform, "Forearm_L", PrimitiveType.Capsule, new Vector3(0.04f, -0.35f, isLeadHandler ? 0.15f : 0.02f), new Vector3(isLeadHandler ? 60f : 10f, 0f, -5f), new Vector3(0.12f, 0.2f, 0.12f), coatMat);
+        BuildPart(armL.transform, "Hand_L", PrimitiveType.Sphere, new Vector3(0.06f, -0.5f, isLeadHandler ? 0.3f : 0.04f), Vector3.zero, new Vector3(0.08f, 0.08f, 0.1f), skinMat);
 
         GameObject armR = new GameObject("Arm_R");
         armR.transform.SetParent(torso.transform);
-        armR.transform.localPosition = new Vector3(0.25f, 0.45f, 0f);
-        armR.transform.localRotation = Quaternion.Euler(armRRot);
-        BuildPart(armR.transform, "UpperArm_R", PrimitiveType.Capsule, new Vector3(0f, -0.15f, 0f), Vector3.zero, new Vector3(0.12f, 0.18f, 0.12f), coatMat);
-        BuildPart(armR.transform, "Forearm_R", PrimitiveType.Capsule, new Vector3(-0.04f, -0.35f, isLeadHandler ? 0.15f : 0.02f), new Vector3(isLeadHandler ? 60f : 10f, 0f, 5f), new Vector3(0.10f, 0.18f, 0.10f), coatMat);
-        BuildPart(armR.transform, "Hand_R", PrimitiveType.Sphere, new Vector3(-0.06f, -0.48f, isLeadHandler ? 0.30f : 0.04f), Vector3.zero, new Vector3(0.08f, 0.08f, 0.10f), gloveMat);
+        armR.transform.localPosition = new Vector3(0.35f, 0.45f, 0f);
+        armR.transform.localRotation = Quaternion.Euler(isLeadHandler ? -30f : -5f, -15f, 10f);
+        BuildPart(armR.transform, "UpperArm_R", PrimitiveType.Capsule, new Vector3(0f, -0.15f, 0f), Vector3.zero, new Vector3(0.14f, 0.2f, 0.14f), coatMat);
+        BuildPart(armR.transform, "Forearm_R", PrimitiveType.Capsule, new Vector3(-0.04f, -0.35f, isLeadHandler ? 0.15f : 0.02f), new Vector3(isLeadHandler ? 60f : 10f, 0f, 5f), new Vector3(0.12f, 0.2f, 0.12f), coatMat);
+        BuildPart(armR.transform, "Hand_R", PrimitiveType.Sphere, new Vector3(-0.06f, -0.5f, isLeadHandler ? 0.3f : 0.04f), Vector3.zero, new Vector3(0.08f, 0.08f, 0.1f), skinMat);
+
+        // Head: a large glowing question mark that always turns to the player.
+        GameObject head = new GameObject("Head_QuestionMark");
+        head.transform.SetParent(torso.transform);
+        head.transform.localPosition = new Vector3(0f, 0.82f, 0f);
+        head.AddComponent<LookAtPlayer>();
+
+        BuildQuestionMark(head.transform, qMarkMat);
 
         Collider[] primitiveColliders = root.GetComponentsInChildren<Collider>();
         for (int i = 0; i < primitiveColliders.Length; i++)
@@ -152,9 +105,9 @@ public static class HospitalWardEntitiesBuilder
         }
 
         CapsuleCollider bodyCollider = root.AddComponent<CapsuleCollider>();
-        bodyCollider.center = new Vector3(0f, 0.90f, 0f);
-        bodyCollider.height = 1.80f;
-        bodyCollider.radius = 0.30f;
+        bodyCollider.center = new Vector3(0f, 0.95f, 0f);
+        bodyCollider.height = 1.9f;
+        bodyCollider.radius = 0.32f;
 
         WardEntityIdle idle = root.AddComponent<WardEntityIdle>();
         idle.torsoTransform = torso.transform;
@@ -169,9 +122,31 @@ public static class HospitalWardEntitiesBuilder
             intro.handlerRightArm = armR.transform;
             intro.handlerIdle = idle;
         }
+
+        return root.transform;
     }
 
-    private static Transform CreatePart(Transform parent, string name, PrimitiveType type, Vector3 localPos, Vector3 localEuler, Vector3 localScale, Material material)
+    /// <summary>
+    /// Builds a roughly half a metre tall "?" out of glowing blobs: a curved hook,
+    /// a short stem and a dot, all sitting in the head's local XY plane.
+    /// </summary>
+    private static void BuildQuestionMark(Transform parent, Material glowMaterial)
+    {
+        const int segments = 14;
+        const float radius = 0.19f;
+
+        for (int i = 0; i <= segments; i++)
+        {
+            float angle = Mathf.Lerp(205f, -25f, i / (float)segments) * Mathf.Deg2Rad;
+            Vector3 point = new Vector3(Mathf.Cos(angle) * radius, 0.16f + Mathf.Sin(angle) * radius, 0f);
+            BuildPart(parent, $"Q_Hook_{i:00}", PrimitiveType.Sphere, point, Vector3.zero, Vector3.one * 0.085f, glowMaterial);
+        }
+
+        BuildPart(parent, "Q_Stem", PrimitiveType.Capsule, new Vector3(0.10f, -0.02f, 0f), new Vector3(0f, 0f, 30f), new Vector3(0.08f, 0.09f, 0.08f), glowMaterial);
+        BuildPart(parent, "Q_Dot", PrimitiveType.Sphere, new Vector3(0.02f, -0.21f, 0f), Vector3.zero, Vector3.one * 0.1f, glowMaterial);
+    }
+
+    private static GameObject BuildPart(Transform parent, string name, PrimitiveType type, Vector3 localPos, Vector3 localEuler, Vector3 localScale, Material material)
     {
         GameObject part = GameObject.CreatePrimitive(type);
         part.name = name;
@@ -180,60 +155,6 @@ public static class HospitalWardEntitiesBuilder
         part.transform.localRotation = Quaternion.Euler(localEuler);
         part.transform.localScale = localScale;
         part.GetComponent<Renderer>().sharedMaterial = material;
-        return part.transform;
-    }
-
-    private static void BuildPart(Transform parent, string name, PrimitiveType type, Vector3 localPos, Vector3 localEuler, Vector3 localScale, Material material)
-    {
-        CreatePart(parent, name, type, localPos, localEuler, localScale, material);
-    }
-
-    private static Vector3 FindFreeSpot(Vector3 desired)
-    {
-        Physics.SyncTransforms();
-        if (IsFree(desired)) return desired;
-
-        Vector3[] offsets =
-        {
-            new Vector3(0.45f, 0f, 0f),
-            new Vector3(-0.45f, 0f, 0f),
-            new Vector3(0f, 0f, 0.45f),
-            new Vector3(0f, 0f, -0.45f),
-            new Vector3(0.45f, 0f, 0.45f),
-            new Vector3(-0.45f, 0f, -0.45f),
-            new Vector3(0.75f, 0f, 0f),
-            new Vector3(0f, 0f, 0.75f)
-        };
-
-        for (int i = 0; i < offsets.Length; i++)
-        {
-            Vector3 candidate = desired + offsets[i];
-            candidate.x = Mathf.Clamp(candidate.x, -4.35f, 4.35f);
-            candidate.z = Mathf.Clamp(candidate.z, -4.35f, 4.35f);
-            Physics.SyncTransforms();
-            if (IsFree(candidate)) return candidate;
-        }
-
-        return desired;
-    }
-
-    private static bool IsFree(Vector3 position)
-    {
-        Vector3 bottom = position + Vector3.up * 0.35f;
-        Vector3 top = position + Vector3.up * 1.55f;
-        return !Physics.CheckCapsule(bottom, top, 0.34f, ~0, QueryTriggerInteraction.Ignore);
-    }
-
-    private static void WireToIntro(PatientBreathingAndIntro intro, Transform[] figures)
-    {
-        if (intro == null)
-        {
-            Debug.LogWarning("[HospitalWardEntitiesBuilder] PatientBreathingAndIntro was not found in the open scene; the doctors were built but not wired.");
-            return;
-        }
-
-        Undo.RecordObject(intro, "Wire Ward Entities");
-        intro.wardEntities = figures;
-        EditorUtility.SetDirty(intro);
+        return part;
     }
 }
