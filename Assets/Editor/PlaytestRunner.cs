@@ -104,8 +104,6 @@ public static class PlaytestRunner
         if (offset != null)
         {
             _rigNode = offset.transform;
-            PatientLookController look = _rigNode.GetComponent<PatientLookController>();
-            if (look != null) look.enabled = false;
         }
 
         string[] candidates =

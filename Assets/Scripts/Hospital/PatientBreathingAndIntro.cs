@@ -144,7 +144,7 @@ namespace DigitalCurtain.Hospital
 
             if (handlerRoot != null)
             {
-                handlerRoot.position = new Vector3(-2.65f, 0f, -1.80f);
+                handlerRoot.position = new Vector3(-3.35f, 0f, -1.05f);
                 handlerRoot.rotation = Quaternion.Euler(0f, 155f, 0f);
                 handlerRoot.gameObject.SetActive(false);
             }
@@ -382,13 +382,13 @@ namespace DigitalCurtain.Hospital
                 if (handlerRoot != null)
                 {
                     handlerRoot.position = Vector3.Lerp(
-                        new Vector3(-2.65f, 0f, -1.80f),
-                        new Vector3(-2.32f, 0f, -3.72f),
+                        new Vector3(-3.35f, 0f, -1.05f),
+                        new Vector3(-2.55f, 0f, -2.35f),
                         t
                     );
                     handlerRoot.rotation = Quaternion.Slerp(
                         Quaternion.Euler(0f, 155f, 0f),
-                        Quaternion.Euler(0f, 122f, 0f),
+                        Quaternion.Euler(0f, 162f, 0f),
                         t
                     );
                 }
