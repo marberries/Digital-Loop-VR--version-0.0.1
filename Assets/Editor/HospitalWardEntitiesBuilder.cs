@@ -157,7 +157,7 @@ public static class HospitalWardEntitiesBuilder
 
     private static void WireToIntro(Transform[] figures)
     {
-        PatientBreathingAndIntro intro = Object.FindFirstObjectByType<PatientBreathingAndIntro>(FindObjectsInactive.Include);
+        PatientBreathingAndIntro intro = Object.FindAnyObjectByType<PatientBreathingAndIntro>(FindObjectsInactive.Include);
         if (intro == null)
         {
             Debug.LogWarning("[HospitalWardEntitiesBuilder] PatientBreathingAndIntro was not found in the open scene; ward entities were built but not wired.");
