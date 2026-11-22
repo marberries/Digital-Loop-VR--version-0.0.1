@@ -54,6 +54,8 @@ public static class HospitalExperienceSetup
 
         SetupUneaseFeedback(intro, vignette, chromatic);
         SetupDirector(intro);
+        FixFullscreenOverlays();
+        TuneHandlerMaterials();
         EnsureSceneInBuildSettings(EditorSceneManager.GetActiveScene().path);
 
         if (Object.FindAnyObjectByType<AudioListener>() == null)
@@ -189,6 +191,41 @@ public static class HospitalExperienceSetup
 
         director.intro = intro;
         director.endingText = ending;
+    }
+
+    private static void FixFullscreenOverlays()
+    {
+        string[] names = { "Blackout_Screen", "Headset_Static_Glitch_Screen" };
+        for (int i = 0; i < names.Length; i++)
+        {
+            GameObject target = GameObject.Find(names[i]);
+            if (target == null) continue;
+
+            RectTransform rect = target.GetComponent<RectTransform>();
+            if (rect == null) continue;
+
+            rect.anchorMin = new Vector2(-0.03f, -0.03f);
+            rect.anchorMax = new Vector2(1.03f, 1.03f);
+            rect.offsetMin = Vector2.zero;
+            rect.offsetMax = Vector2.zero;
+        }
+    }
+
+    private static void TuneHandlerMaterials()
+    {
+        SetBaseColor("Assets/Materials/Handler_Coat_Mat.mat", new Color(0.15f, 0.16f, 0.19f));
+        SetBaseColor("Assets/Materials/Handler_Glove_Mat.mat", new Color(0.19f, 0.20f, 0.23f));
+        SetBaseColor("Assets/Materials/Handler_Mask_Mat.mat", new Color(0.07f, 0.07f, 0.09f));
+    }
+
+    private static void SetBaseColor(string path, Color color)
+    {
+        Material material = AssetDatabase.LoadAssetAtPath<Material>(path);
+        if (material == null) return;
+
+        material.SetColor("_BaseColor", color);
+        material.SetColor("_Color", color);
+        EditorUtility.SetDirty(material);
     }
 
     private static void EnsureSceneInBuildSettings(string scenePath)
