@@ -2,6 +2,7 @@ using System.IO;
 using System.Reflection;
 using DigitalCurtain.Hospital;
 using UnityEditor;
+using UnityEditor.SceneManagement;
 using UnityEngine;
 
 [InitializeOnLoad]
@@ -23,30 +24,27 @@ public static class SequencePreviewRunner
         try
         {
             PatientBreathingAndIntro intro = Object.FindAnyObjectByType<PatientBreathingAndIntro>(FindObjectsInactive.Include);
-            if (intro == null)
+            if (intro != null)
             {
-                result = "FAIL no intro";
+                SetPrivate(intro, "_sequenceTriggered", false);
+                SetPrivate(intro, "_seqTime", 0f);
+
+                if (intro.handlerRoot != null)
+                {
+                    intro.handlerRoot.position = new Vector3(-2.55f, 0f, -1.55f);
+                    intro.handlerRoot.rotation = Quaternion.Euler(0f, 160f, 0f);
+                    intro.handlerRoot.gameObject.SetActive(false);
+                }
+
+                if (intro.headsetAssembly != null)
+                {
+                    intro.headsetAssembly.gameObject.SetActive(false);
+                }
             }
-            else
-            {
-                if (intro.handlerRoot != null) intro.handlerRoot.gameObject.SetActive(true);
-                SetPrivate(intro, "_sequenceTriggered", true);
 
-                SetPrivate(intro, "_seqTime", 1.2f);
-                Invoke(intro, "RunHandlerAndVisorSequence");
-                RenderShot("seq_a_approach", new Vector3(0.9f, 1.5f, -2.9f), new Vector3(-1.9f, 1.35f, -2.2f), 50f);
-
-                SetPrivate(intro, "_seqTime", 4.1f);
-                Invoke(intro, "RunHandlerAndVisorSequence");
-                RenderShot("seq_b_visor", new Vector3(0.9f, 1.5f, -2.9f), new Vector3(-1.75f, 1.3f, -2.5f), 50f);
-
-                SetPrivate(intro, "_seqTime", 4.1f);
-                Invoke(intro, "RunHandlerAndVisorSequence");
-                RenderShot("seq_c_from_bed", new Vector3(-1.5f, 0.78f, -3.2f), new Vector3(-1.75f, 1.45f, -2.5f), 70f);
-
-                result = "OK visorPos=" + (intro.headsetAssembly != null ? intro.headsetAssembly.position.ToString("F2") : "null") +
-                         " handlerPos=" + (intro.handlerRoot != null ? intro.handlerRoot.position.ToString("F2") : "null");
-            }
+            EditorSceneManager.MarkSceneDirty(EditorSceneManager.GetActiveScene());
+            EditorSceneManager.SaveScene(EditorSceneManager.GetActiveScene());
+            result = "RESTORED";
         }
         catch (System.Exception exception)
         {
