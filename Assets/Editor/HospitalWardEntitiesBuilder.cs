@@ -80,7 +80,7 @@ public static class HospitalWardEntitiesBuilder
         armL.transform.localRotation = Quaternion.Euler(isLeadHandler ? -30f : -5f, 15f, -10f);
         BuildPart(armL.transform, "UpperArm_L", PrimitiveType.Capsule, new Vector3(0f, -0.15f, 0f), Vector3.zero, new Vector3(0.14f, 0.2f, 0.14f), coatMat);
         BuildPart(armL.transform, "Forearm_L", PrimitiveType.Capsule, new Vector3(0.04f, -0.35f, isLeadHandler ? 0.15f : 0.02f), new Vector3(isLeadHandler ? 60f : 10f, 0f, -5f), new Vector3(0.12f, 0.2f, 0.12f), coatMat);
-        BuildPart(armL.transform, "Hand_L", PrimitiveType.Sphere, new Vector3(0.06f, -0.5f, isLeadHandler ? 0.3f : 0.04f), Vector3.zero, new Vector3(0.08f, 0.08f, 0.1f), skinMat);
+        BuildPart(armL.transform, "Hand_L", PrimitiveType.Sphere, new Vector3(0.05f, isLeadHandler ? -0.47f : -0.55f, 0.02f), Vector3.zero, new Vector3(0.09f, 0.09f, 0.11f), skinMat);
 
         GameObject armR = new GameObject("Arm_R");
         armR.transform.SetParent(torso.transform);
@@ -88,12 +88,12 @@ public static class HospitalWardEntitiesBuilder
         armR.transform.localRotation = Quaternion.Euler(isLeadHandler ? -30f : -5f, -15f, 10f);
         BuildPart(armR.transform, "UpperArm_R", PrimitiveType.Capsule, new Vector3(0f, -0.15f, 0f), Vector3.zero, new Vector3(0.14f, 0.2f, 0.14f), coatMat);
         BuildPart(armR.transform, "Forearm_R", PrimitiveType.Capsule, new Vector3(-0.04f, -0.35f, isLeadHandler ? 0.15f : 0.02f), new Vector3(isLeadHandler ? 60f : 10f, 0f, 5f), new Vector3(0.12f, 0.2f, 0.12f), coatMat);
-        BuildPart(armR.transform, "Hand_R", PrimitiveType.Sphere, new Vector3(-0.06f, -0.5f, isLeadHandler ? 0.3f : 0.04f), Vector3.zero, new Vector3(0.08f, 0.08f, 0.1f), skinMat);
+        BuildPart(armR.transform, "Hand_R", PrimitiveType.Sphere, new Vector3(-0.05f, isLeadHandler ? -0.47f : -0.55f, 0.02f), Vector3.zero, new Vector3(0.09f, 0.09f, 0.11f), skinMat);
 
         // Head: a large glowing question mark that always turns to the player.
         GameObject head = new GameObject("Head_QuestionMark");
         head.transform.SetParent(torso.transform);
-        head.transform.localPosition = new Vector3(0f, 0.82f, 0f);
+        head.transform.localPosition = new Vector3(0f, 0.70f, 0f);
         head.AddComponent<LookAtPlayer>();
 
         BuildQuestionMark(head.transform, qMarkMat);
