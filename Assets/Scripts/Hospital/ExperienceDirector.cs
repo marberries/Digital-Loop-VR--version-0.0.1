@@ -20,6 +20,35 @@ namespace DigitalCurtain.Hospital
         private float _fade;
         private bool _ended;
 
+        private void Start()
+        {
+            StabilizePillBottle();
+        }
+
+        /// <summary>
+        /// The pill bottle shipped with a live Rigidbody that overlapped the nightstand
+        /// and launched itself across the ward. Park it on the table for good.
+        /// </summary>
+        private static void StabilizePillBottle()
+        {
+            GameObject bottle = GameObject.Find("Pill_Bottle");
+            if (bottle == null) bottle = GameObject.Find("Capsule");
+            if (bottle == null) return;
+
+            Rigidbody body = bottle.GetComponent<Rigidbody>();
+            if (body != null)
+            {
+                body.isKinematic = true;
+                body.useGravity = false;
+                body.constraints = RigidbodyConstraints.FreezeAll;
+                body.linearVelocity = Vector3.zero;
+                body.angularVelocity = Vector3.zero;
+            }
+
+            bottle.transform.position = new Vector3(-0.54f, 0.655f, -4.15f);
+            bottle.transform.rotation = Quaternion.identity;
+        }
+
         private void Update()
         {
             if (_ended && RestartPressed())
