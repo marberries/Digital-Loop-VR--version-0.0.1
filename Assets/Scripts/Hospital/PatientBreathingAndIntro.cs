@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.XR;
@@ -20,7 +21,22 @@ namespace DigitalCurtain.Hospital
         public float verticalAmplitude = 0.014f;
         public float pitchAmplitude = 0.95f;
         public float handlerEnterTime = 11.5f;
-        public bool enableAutoSequence = true;
+
+        [Header("Unease Trigger (Gaze)")]
+        [Tooltip("Idle ward figures the player can stare at. Leave empty to auto-collect components named WardEntityIdle.")]
+        public Transform[] wardEntities;
+        [Tooltip("How long the camera must keep looking at the same figure before unease starts building.")]
+        public float gazeHoldThreshold = 1.5f;
+        [Tooltip("Max angle (degrees) between the camera forward axis and the figure.")]
+        public float gazeMaxAngle = 30f;
+        [Tooltip("Figures farther away than this are ignored.")]
+        public float gazeMaxDistance = 15f;
+        [Tooltip("Unease gained per second while the gaze is held.")]
+        public float uneaseGrowthRate = 0.4f;
+        [Tooltip("Unease lost per second when the gaze is not held. 0 = never decays.")]
+        public float uneaseDecayRate = 0f;
+        [Tooltip("Unease level that starts the handler/visor sequence.")]
+        public float uneaseThreshold = 1.0f;
 
         [Header("Scene Rig References")]
         public Transform headsetAssembly;
@@ -53,6 +69,13 @@ namespace DigitalCurtain.Hospital
         private bool _clampSoundPlayed;
         private bool _staticSoundPlayed;
 
+        private float _unease;
+        private float _gazeDwell;
+        private Transform _gazeTarget;
+        private readonly List<Transform> _gazeTargets = new List<Transform>();
+
+        public float Unease => _unease;
+
         private AudioSource _breathAudio;
         private AudioSource _sfxAudio;
         private AudioSource _staticAudio;
@@ -80,6 +103,7 @@ namespace DigitalCurtain.Hospital
         {
             _cam = GetComponent<Camera>();
             _rng = new System.Random(2026);
+            CollectWardEntities();
 
             if (!XRSettings.isDeviceActive)
             {
@@ -171,19 +195,14 @@ namespace DigitalCurtain.Hospital
 #else
             if (Input.GetKeyDown(KeyCode.Space)) spacePressed = true;
 #endif
-            if (!_sequenceTriggered && (spacePressed || (enableAutoSequence && _elapsed >= handlerEnterTime)))
+
+            if (!_sequenceTriggered)
             {
-                _sequenceTriggered = true;
-                _seqTime = 0f;
-                _lastInhaleTriggered = false;
+                UpdateUnease(Time.deltaTime);
 
-                if (handlerRoot != null) handlerRoot.gameObject.SetActive(true);
-                if (headsetAssembly != null) headsetAssembly.gameObject.SetActive(true);
-
-                if (ecgMonitor != null)
+                if (spacePressed || _unease >= uneaseThreshold)
                 {
-                    ecgMonitor.beatsPerMinute = 138f;
-                    ecgMonitor.scrollSpeed = 0.80f;
+                    TriggerSequence();
                 }
             }
 
