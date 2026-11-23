@@ -465,9 +465,14 @@ namespace DigitalCurtain.Hospital
                         _headsetStartRotation = headsetAssembly.rotation;
                     }
 
+                    // The visor turns to the player early, then slides onto the face late:
+                    // it reads as "he is about to put it on" instead of a box flying at the lens.
+                    float rotationT = Mathf.Pow(t, 0.45f);
+                    float positionT = Mathf.Pow(t, 1.5f);
+
                     Vector3 endPos = transform.position + transform.forward * 0.1f;
-                    headsetAssembly.position = Vector3.Lerp(_headsetStartPosition, endPos, t);
-                    headsetAssembly.rotation = Quaternion.Slerp(_headsetStartRotation, transform.rotation, t);
+                    headsetAssembly.position = Vector3.Lerp(_headsetStartPosition, endPos, positionT);
+                    headsetAssembly.rotation = Quaternion.Slerp(_headsetStartRotation, transform.rotation, rotationT);
 
                     if (t >= 0.94f && !_clampSoundPlayed)
                     {
