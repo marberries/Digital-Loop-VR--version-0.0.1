@@ -93,7 +93,7 @@ public static class HospitalExperienceSetup
         look.sensitivity = 2.2f;
         // The rig is tilted 75 degrees (lying on the bed). The head sits 60 degrees back
         // against that tilt, so the default eye line rests ~15 degrees down towards the feet.
-        look.basePitch = -60f;
+        look.basePitch = -55f;
         look.minPitch = -35f;
         look.maxPitch = 35f;
         look.lockCursor = true;
@@ -176,7 +176,7 @@ public static class HospitalExperienceSetup
 
         // The player is strapped to the bed: the rig sits on the mattress, head on the pillow,
         // and the view is tilted forward so the patient sees their own body and the ward beyond.
-        origin.transform.position = new Vector3(-1.5f, 0.65f, -3.2f);
+        origin.transform.position = new Vector3(-1.5f, 0.78f, -4.0f);
         origin.transform.rotation = Quaternion.Euler(75f, 0f, 0f);
 
         offset.transform.localPosition = Vector3.zero;
