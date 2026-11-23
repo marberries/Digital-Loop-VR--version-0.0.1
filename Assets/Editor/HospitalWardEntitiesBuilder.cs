@@ -164,6 +164,16 @@ public static class HospitalWardEntitiesBuilder
             textMaterial.SetColor("_GlowColor", Color.white);
             textMaterial.SetFloat("_GlowPower", 0.85f);
         }
+
+        text.ForceMeshUpdate();
+
+        // Normalise the glyph to ~0.55 world units regardless of font metrics.
+        float glyphHeight = text.textBounds.size.y;
+        if (glyphHeight > 0.0001f)
+        {
+            float scale = 0.55f / glyphHeight;
+            textObject.transform.localScale = Vector3.one * scale;
+        }
     }
 
     private static TMP_FontAsset LoadDefaultTmpFont()
