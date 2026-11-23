@@ -1,4 +1,5 @@
 using DigitalCurtain.Hospital;
+using TMPro;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -127,23 +128,58 @@ public static class HospitalWardEntitiesBuilder
     }
 
     /// <summary>
-    /// Builds a roughly half a metre tall "?" out of glowing blobs: a curved hook,
-    /// a short stem and a dot, all sitting in the head's local XY plane.
+    /// A real 3D "?" rendered with TextMeshPro: crisp, always readable and
+    /// billboarded towards the player by LookAtPlayer on the parent.
     /// </summary>
     private static void BuildQuestionMark(Transform parent, Material glowMaterial)
     {
-        const int segments = 14;
-        const float radius = 0.19f;
+        GameObject textObject = new GameObject("QMark_Text");
+        textObject.transform.SetParent(parent, false);
+        textObject.transform.localPosition = Vector3.zero;
+        textObject.transform.localRotation = Quaternion.identity;
 
-        for (int i = 0; i <= segments; i++)
+        TextMeshPro text = textObject.AddComponent<TextMeshPro>();
+        TMP_FontAsset font = LoadDefaultTmpFont();
+        if (font != null) text.font = font;
+
+        text.text = "?";
+        text.fontSize = 72f;
+        text.fontStyle = FontStyles.Bold;
+        text.alignment = TextAlignmentOptions.Center;
+        text.color = Color.white;
+        text.enableAutoSizing = false;
+        text.enableWordWrapping = false;
+        text.overflowMode = TextOverflowModes.Overflow;
+        text.rectTransform.sizeDelta = new Vector2(1f, 1f);
+
+        Material textMaterial = text.fontMaterial;
+        if (textMaterial != null)
         {
-            float angle = Mathf.Lerp(205f, -25f, i / (float)segments) * Mathf.Deg2Rad;
-            Vector3 point = new Vector3(Mathf.Cos(angle) * radius, 0.16f + Mathf.Sin(angle) * radius, 0f);
-            BuildPart(parent, $"Q_Hook_{i:00}", PrimitiveType.Sphere, point, Vector3.zero, Vector3.one * 0.085f, glowMaterial);
+            textMaterial.SetColor("_FaceColor", Color.white);
+            textMaterial.EnableKeyword("GLOW_ON");
+            textMaterial.SetColor("_GlowColor", Color.white);
+            textMaterial.SetFloat("_GlowPower", 0.85f);
+        }
+    }
+
+    private static TMP_FontAsset LoadDefaultTmpFont()
+    {
+        TMP_FontAsset font = null;
+        try
+        {
+            font = TMP_Settings.defaultFontAsset;
+        }
+        catch
+        {
+            font = null;
         }
 
-        BuildPart(parent, "Q_Stem", PrimitiveType.Capsule, new Vector3(0.14f, -0.01f, 0f), new Vector3(0f, 0f, 20f), new Vector3(0.08f, 0.09f, 0.08f), glowMaterial);
-        BuildPart(parent, "Q_Dot", PrimitiveType.Sphere, new Vector3(0.05f, -0.20f, 0f), Vector3.zero, Vector3.one * 0.1f, glowMaterial);
+        if (font != null) return font;
+
+        font = AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/SharedAssets/TextMeshPro/Resources/FontsAndMaterials/LiberationSansSDF.asset");
+        if (font != null) return font;
+
+        return AssetDatabase.LoadAssetAtPath<TMP_FontAsset>("Assets/SharedAssets/TextMeshPro/Resources/Fonts & Materials/LiberationSans SDF.asset");
     }
 
     private static GameObject BuildPart(Transform parent, string name, PrimitiveType type, Vector3 localPos, Vector3 localEuler, Vector3 localScale, Material material)
