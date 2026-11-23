@@ -112,11 +112,11 @@ namespace DigitalCurtain.Hospital
         private static readonly (float time, string line)[] HeroLines = new (float, string)[]
         {
             (1.0f,  "My body... I can't feel my body..."),
-            (5.5f,  "Why is it so bright? Where am I? This is a hospital..."),
-            (11.0f, "Who are these people? Why do they have question marks instead of faces?"),
-            (16.0f, "I am trying to move, but... nothing. I am trapped here."),
-            (21.0f, "They are getting closer. What is that thing in his hands? A headset?"),
-            (26.0f, "No, wait! Don't put that on me! Please!")
+            (4.5f,  "Why is it so bright? Where am I? This is a hospital..."),
+            (9.0f,  "Who are these people? Why do they have question marks instead of faces?"),
+            (13.0f, "I am trying to move, but... nothing. I am trapped here."),
+            (17.0f, "They are getting closer. What is that thing in his hands? A headset?"),
+            (20.0f, "No, wait! Don't put that on me! Please!")
         };
 
         private void Start()
@@ -410,9 +410,9 @@ namespace DigitalCurtain.Hospital
 
         private void RunHandlerAndVisorSequence()
         {
-            if (_seqTime <= 2.8f)
+            if (_seqTime <= 1.6f)
             {
-                float approach = Mathf.SmoothStep(0f, 1f, _seqTime / 2.8f);
+                float approach = Mathf.SmoothStep(0f, 1f, _seqTime / 1.6f);
 
                 if (handlerRoot != null)
                 {
@@ -437,9 +437,9 @@ namespace DigitalCurtain.Hospital
                 return;
             }
 
-            if (_seqTime <= 5.2f)
+            if (_seqTime <= 3.2f)
             {
-                float t = Mathf.SmoothStep(0f, 1f, (_seqTime - 2.8f) / 2.4f);
+                float t = Mathf.SmoothStep(0f, 1f, (_seqTime - 1.6f) / 1.6f);
 
                 if (handlerTorso != null)
                 {
@@ -513,7 +513,7 @@ namespace DigitalCurtain.Hospital
                 }
             }
 
-            float insideTime = _seqTime - 5.2f;
+            float insideTime = _seqTime - 3.2f;
 
             if (insideTime < 3.4f)
             {

@@ -33,6 +33,8 @@ public static class HospitalExperienceSetup
             intro = mainCamera.AddComponent<PatientBreathingAndIntro>();
         }
 
+        intro.sequenceEarliestTime = 18f;
+        intro.sequenceLatestTime = 24f;
         intro.uneaseGrowthRate = 0.12f;
         intro.uneaseDecayRate = 0.05f;
         intro.gazeHoldThreshold = 1.5f;

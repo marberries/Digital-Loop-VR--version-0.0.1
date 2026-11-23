@@ -100,7 +100,7 @@ namespace DigitalCurtain.Hospital
                 ? Quaternion.Inverse(transform.parent.rotation) * worldRotation
                 : worldRotation;
 
-            transform.localRotation = Quaternion.Slerp(transform.localRotation, localRotation, 1f - Mathf.Exp(-4.5f * Time.deltaTime));
+            transform.localRotation = Quaternion.Slerp(transform.localRotation, localRotation, 1f - Mathf.Exp(-6f * Time.deltaTime));
         }
 
         private void OnDisable()
