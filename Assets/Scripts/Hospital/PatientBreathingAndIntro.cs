@@ -418,7 +418,7 @@ namespace DigitalCurtain.Hospital
                 {
                     handlerRoot.position = Vector3.Lerp(
                         new Vector3(-2.55f, 0f, -1.55f),
-                        new Vector3(-1.50f, 0f, -2.50f),
+                        new Vector3(-1.50f, 0f, -2.15f),
                         approach
                     );
                     handlerRoot.rotation = Quaternion.Slerp(

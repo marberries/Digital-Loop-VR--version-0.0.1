@@ -91,7 +91,7 @@ namespace DigitalCurtain.Hospital
         {
             if (_cursorLocked) SetCursorLock(false);
 
-            Vector3 point = handlerTorso.position + Vector3.up * 0.25f;
+            Vector3 point = handlerTorso.position + Vector3.up * 0.78f;
             Vector3 direction = point - transform.position;
             if (direction.sqrMagnitude < 0.0001f) return;
 

@@ -78,16 +78,16 @@ public static class HospitalWardEntitiesBuilder
         armL.transform.SetParent(torso.transform);
         armL.transform.localPosition = new Vector3(-0.35f, 0.45f, 0f);
         armL.transform.localRotation = Quaternion.Euler(isLeadHandler ? -30f : -5f, 15f, -10f);
-        BuildPart(armL.transform, "UpperArm_L", PrimitiveType.Capsule, new Vector3(0f, -0.15f, 0f), Vector3.zero, new Vector3(0.14f, 0.2f, 0.14f), coatMat);
-        BuildPart(armL.transform, "Forearm_L", PrimitiveType.Capsule, new Vector3(0.04f, -0.35f, isLeadHandler ? 0.15f : 0.02f), new Vector3(isLeadHandler ? 60f : 10f, 0f, -5f), new Vector3(0.12f, 0.2f, 0.12f), coatMat);
+        BuildPart(armL.transform, "UpperArm_L", PrimitiveType.Capsule, new Vector3(0f, -0.15f, 0f), Vector3.zero, new Vector3(0.115f, 0.2f, 0.115f), coatMat);
+        BuildPart(armL.transform, "Forearm_L", PrimitiveType.Capsule, new Vector3(0.04f, -0.35f, isLeadHandler ? 0.15f : 0.02f), new Vector3(isLeadHandler ? 60f : 10f, 0f, -5f), new Vector3(0.095f, 0.2f, 0.095f), coatMat);
         BuildPart(armL.transform, "Hand_L", PrimitiveType.Sphere, new Vector3(0.05f, isLeadHandler ? -0.47f : -0.55f, 0.02f), Vector3.zero, new Vector3(0.09f, 0.09f, 0.11f), skinMat);
 
         GameObject armR = new GameObject("Arm_R");
         armR.transform.SetParent(torso.transform);
         armR.transform.localPosition = new Vector3(0.35f, 0.45f, 0f);
         armR.transform.localRotation = Quaternion.Euler(isLeadHandler ? -30f : -5f, -15f, 10f);
-        BuildPart(armR.transform, "UpperArm_R", PrimitiveType.Capsule, new Vector3(0f, -0.15f, 0f), Vector3.zero, new Vector3(0.14f, 0.2f, 0.14f), coatMat);
-        BuildPart(armR.transform, "Forearm_R", PrimitiveType.Capsule, new Vector3(-0.04f, -0.35f, isLeadHandler ? 0.15f : 0.02f), new Vector3(isLeadHandler ? 60f : 10f, 0f, 5f), new Vector3(0.12f, 0.2f, 0.12f), coatMat);
+        BuildPart(armR.transform, "UpperArm_R", PrimitiveType.Capsule, new Vector3(0f, -0.15f, 0f), Vector3.zero, new Vector3(0.115f, 0.2f, 0.115f), coatMat);
+        BuildPart(armR.transform, "Forearm_R", PrimitiveType.Capsule, new Vector3(-0.04f, -0.35f, isLeadHandler ? 0.15f : 0.02f), new Vector3(isLeadHandler ? 60f : 10f, 0f, 5f), new Vector3(0.095f, 0.2f, 0.095f), coatMat);
         BuildPart(armR.transform, "Hand_R", PrimitiveType.Sphere, new Vector3(-0.05f, isLeadHandler ? -0.47f : -0.55f, 0.02f), Vector3.zero, new Vector3(0.09f, 0.09f, 0.11f), skinMat);
 
         // Head: a large glowing question mark that always turns to the player.
