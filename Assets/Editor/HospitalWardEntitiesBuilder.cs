@@ -98,7 +98,7 @@ public static class HospitalWardEntitiesBuilder
         // Head: a large glowing question mark that always turns to the player.
         GameObject head = new GameObject("Head_QuestionMark");
         head.transform.SetParent(torso.transform);
-        head.transform.localPosition = new Vector3(0f, 0.78f, 0f);
+        head.transform.localPosition = new Vector3(0f, 0.72f, 0f);
         head.AddComponent<LookAtPlayer>();
 
         BuildQuestionMark(head.transform, qMarkMat);
@@ -171,7 +171,7 @@ public static class HospitalWardEntitiesBuilder
         float glyphHeight = text.textBounds.size.y;
         if (glyphHeight > 0.0001f)
         {
-            float scale = 0.55f / glyphHeight;
+            float scale = 0.68f / glyphHeight;
             textObject.transform.localScale = Vector3.one * scale;
         }
     }
