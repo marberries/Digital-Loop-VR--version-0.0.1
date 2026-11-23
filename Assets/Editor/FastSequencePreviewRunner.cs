@@ -35,17 +35,19 @@ public static class FastSequencePreviewRunner
             if (intro.handlerRoot != null) intro.handlerRoot.gameObject.SetActive(true);
             SetPrivate(intro, "_sequenceTriggered", true);
 
+            Vector3 eye = intro.transform.position;
+
             SetPrivate(intro, "_seqTime", 1.5f);
             Invoke(intro, "RunHandlerAndVisorSequence");
-            RenderShot("fast_a_approach", new Vector3(-1.5f, 0.9f, -3.3f), new Vector3(-1.9f, 1.4f, -2.2f), 70f);
+            RenderFromPlayer(intro, eye, "fast_a_approach");
 
             SetPrivate(intro, "_seqTime", 2.6f);
             Invoke(intro, "RunHandlerAndVisorSequence");
-            RenderShot("fast_b_visor", new Vector3(-1.5f, 0.9f, -3.3f), new Vector3(-1.7f, 1.35f, -2.5f), 70f);
+            RenderFromPlayer(intro, eye, "fast_b_visor");
 
             SetPrivate(intro, "_seqTime", 3.1f);
             Invoke(intro, "RunHandlerAndVisorSequence");
-            RenderShot("fast_c_face", new Vector3(-1.5f, 0.9f, -3.3f), new Vector3(-1.7f, 1.3f, -2.6f), 75f);
+            RenderFromPlayer(intro, eye, "fast_c_face");
 
             SetPrivate(intro, "_sequenceTriggered", false);
             SetPrivate(intro, "_seqTime", 0f);
@@ -69,6 +71,15 @@ public static class FastSequencePreviewRunner
 
         File.WriteAllText(ResultPath, result);
         Debug.Log("[FastSequencePreviewRunner] " + result);
+    }
+
+    private static void RenderFromPlayer(PatientBreathingAndIntro intro, Vector3 eye, string name)
+    {
+        Vector3 head = intro.handlerTorso != null
+            ? intro.handlerTorso.position + Vector3.up * 0.78f
+            : eye + intro.transform.forward * 2f;
+
+        RenderShot(name, eye, head, 62f);
     }
 
     private static void SetPrivate(object target, string field, object value)
