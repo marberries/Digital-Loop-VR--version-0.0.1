@@ -152,7 +152,7 @@ public static class HospitalWardEntitiesBuilder
         text.alignment = TextAlignmentOptions.Center;
         text.color = Color.white;
         text.enableAutoSizing = false;
-        text.enableWordWrapping = false;
+        text.textWrappingMode = TextWrappingModes.NoWrap;
         text.overflowMode = TextOverflowModes.Overflow;
         text.rectTransform.sizeDelta = new Vector2(1f, 1f);
 
