@@ -25,8 +25,7 @@ public static class TmpEssentialsRunner
             AssetDatabase.Refresh();
 
             TMP_FontAsset font = TMP_Settings.defaultFontAsset;
-            result = "OK font=" + (font != null ? font.name : "null") +
-                     " settings=" + (TMP_Settings.instance != null);
+            result = "OK font=" + (font != null ? font.name : "null");
         }
         catch (System.Exception exception)
         {
