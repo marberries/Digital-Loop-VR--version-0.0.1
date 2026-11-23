@@ -61,35 +61,39 @@ public static class HospitalWardEntitiesBuilder
         root.transform.position = worldPos;
         root.transform.rotation = Quaternion.Euler(eulerRot);
 
-        // Legs
-        BuildPart(root.transform, "Leg_L", PrimitiveType.Capsule, new Vector3(-0.15f, 0.45f, 0f), Vector3.zero, new Vector3(0.18f, 0.45f, 0.18f), pantsMat);
-        BuildPart(root.transform, "Leg_R", PrimitiveType.Capsule, new Vector3(0.15f, 0.45f, 0f), Vector3.zero, new Vector3(0.18f, 0.45f, 0.18f), pantsMat);
+        // Legs: two segments per leg so they read as trousers, not pills.
+        BuildPart(root.transform, "Leg_L_Upper", PrimitiveType.Capsule, new Vector3(-0.15f, 0.6f, 0f), Vector3.zero, new Vector3(0.18f, 0.4f, 0.18f), pantsMat);
+        BuildPart(root.transform, "Leg_L_Lower", PrimitiveType.Capsule, new Vector3(-0.15f, 0.2f, 0f), Vector3.zero, new Vector3(0.15f, 0.4f, 0.15f), pantsMat);
+        BuildPart(root.transform, "Leg_R_Upper", PrimitiveType.Capsule, new Vector3(0.15f, 0.6f, 0f), Vector3.zero, new Vector3(0.18f, 0.4f, 0.18f), pantsMat);
+        BuildPart(root.transform, "Leg_R_Lower", PrimitiveType.Capsule, new Vector3(0.15f, 0.2f, 0f), Vector3.zero, new Vector3(0.15f, 0.4f, 0.15f), pantsMat);
 
-        // Torso: a cube reads as a body, a capsule reads as a pill.
+        // Torso: chest + abdomen + shoulders in a white lab coat.
         GameObject torso = new GameObject("Torso");
         torso.transform.SetParent(root.transform);
         torso.transform.localPosition = new Vector3(0f, 1.0f, 0f);
         torso.transform.localRotation = Quaternion.Euler(isLeadHandler ? 6f : 3f, 0f, 0f);
 
-        BuildPart(torso.transform, "Chest_Cube", PrimitiveType.Cube, new Vector3(0f, 0.25f, 0f), Vector3.zero, new Vector3(0.5f, 0.6f, 0.3f), coatMat);
-        BuildPart(torso.transform, "Lab_Coat_Tail", PrimitiveType.Cube, new Vector3(0f, -0.12f, 0f), Vector3.zero, new Vector3(0.46f, 0.45f, 0.28f), coatMat);
+        BuildPart(torso.transform, "Chest_Cube", PrimitiveType.Cube, new Vector3(0f, 0.3f, 0f), Vector3.zero, new Vector3(0.55f, 0.55f, 0.3f), coatMat);
+        BuildPart(torso.transform, "Abdomen_Cube", PrimitiveType.Cube, new Vector3(0f, -0.05f, 0f), Vector3.zero, new Vector3(0.5f, 0.4f, 0.28f), coatMat);
+        BuildPart(torso.transform, "Shoulder_L", PrimitiveType.Sphere, new Vector3(-0.35f, 0.45f, 0f), Vector3.zero, new Vector3(0.2f, 0.2f, 0.2f), coatMat);
+        BuildPart(torso.transform, "Shoulder_R", PrimitiveType.Sphere, new Vector3(0.35f, 0.45f, 0f), Vector3.zero, new Vector3(0.2f, 0.2f, 0.2f), coatMat);
 
-        // Arms
+        // Arms: shoulder pivot, upper arm, forearm, hand.
         GameObject armL = new GameObject("Arm_L");
         armL.transform.SetParent(torso.transform);
-        armL.transform.localPosition = new Vector3(-0.35f, 0.45f, 0f);
-        armL.transform.localRotation = Quaternion.Euler(isLeadHandler ? -30f : -5f, 15f, -10f);
-        BuildPart(armL.transform, "UpperArm_L", PrimitiveType.Capsule, new Vector3(0f, -0.15f, 0f), Vector3.zero, new Vector3(0.115f, 0.2f, 0.115f), coatMat);
-        BuildPart(armL.transform, "Forearm_L", PrimitiveType.Capsule, new Vector3(0.04f, -0.35f, isLeadHandler ? 0.15f : 0.02f), new Vector3(isLeadHandler ? 60f : 10f, 0f, -5f), new Vector3(0.095f, 0.2f, 0.095f), coatMat);
-        BuildPart(armL.transform, "Hand_L", PrimitiveType.Sphere, new Vector3(0.05f, isLeadHandler ? -0.47f : -0.55f, 0.02f), Vector3.zero, new Vector3(0.09f, 0.09f, 0.11f), skinMat);
+        armL.transform.localPosition = new Vector3(-0.35f, 0.4f, 0f);
+        armL.transform.localRotation = Quaternion.Euler(isLeadHandler ? -40f : -10f, 10f, -10f);
+        BuildPart(armL.transform, "UpperArm_L", PrimitiveType.Capsule, new Vector3(0f, -0.2f, 0f), Vector3.zero, new Vector3(0.14f, 0.22f, 0.14f), coatMat);
+        BuildPart(armL.transform, "Forearm_L", PrimitiveType.Capsule, new Vector3(0f, -0.5f, 0.1f), new Vector3(10f, 0f, 0f), new Vector3(0.12f, 0.22f, 0.12f), coatMat);
+        BuildPart(armL.transform, "Hand_L", PrimitiveType.Sphere, new Vector3(0f, -0.7f, 0.15f), Vector3.zero, new Vector3(0.09f, 0.09f, 0.1f), skinMat);
 
         GameObject armR = new GameObject("Arm_R");
         armR.transform.SetParent(torso.transform);
-        armR.transform.localPosition = new Vector3(0.35f, 0.45f, 0f);
-        armR.transform.localRotation = Quaternion.Euler(isLeadHandler ? -30f : -5f, -15f, 10f);
-        BuildPart(armR.transform, "UpperArm_R", PrimitiveType.Capsule, new Vector3(0f, -0.15f, 0f), Vector3.zero, new Vector3(0.115f, 0.2f, 0.115f), coatMat);
-        BuildPart(armR.transform, "Forearm_R", PrimitiveType.Capsule, new Vector3(-0.04f, -0.35f, isLeadHandler ? 0.15f : 0.02f), new Vector3(isLeadHandler ? 60f : 10f, 0f, 5f), new Vector3(0.095f, 0.2f, 0.095f), coatMat);
-        BuildPart(armR.transform, "Hand_R", PrimitiveType.Sphere, new Vector3(-0.05f, isLeadHandler ? -0.47f : -0.55f, 0.02f), Vector3.zero, new Vector3(0.09f, 0.09f, 0.11f), skinMat);
+        armR.transform.localPosition = new Vector3(0.35f, 0.4f, 0f);
+        armR.transform.localRotation = Quaternion.Euler(isLeadHandler ? -40f : -10f, -10f, 10f);
+        BuildPart(armR.transform, "UpperArm_R", PrimitiveType.Capsule, new Vector3(0f, -0.2f, 0f), Vector3.zero, new Vector3(0.14f, 0.22f, 0.14f), coatMat);
+        BuildPart(armR.transform, "Forearm_R", PrimitiveType.Capsule, new Vector3(0f, -0.5f, 0.1f), new Vector3(10f, 0f, 0f), new Vector3(0.12f, 0.22f, 0.12f), coatMat);
+        BuildPart(armR.transform, "Hand_R", PrimitiveType.Sphere, new Vector3(0f, -0.7f, 0.15f), Vector3.zero, new Vector3(0.09f, 0.09f, 0.1f), skinMat);
 
         // Head: a large glowing question mark that always turns to the player.
         GameObject head = new GameObject("Head_QuestionMark");
